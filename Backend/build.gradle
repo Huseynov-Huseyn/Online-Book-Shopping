@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+description = 'aztu-staj'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 🌐 REST API (Controller)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // 🗄️ Database + JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // 🐬 MySQL Driver
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // 🔐 Lombok (getter/setter üçün)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // 🔄 Validation (məs: @NotNull və s.)
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 🧪 Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

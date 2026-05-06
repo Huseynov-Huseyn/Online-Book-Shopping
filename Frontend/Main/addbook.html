@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitab Əlavə Et</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-container">
+            <h1 class="logo">Book<span>Shop</span></h1>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">📚 Kataloq</a></li>
+                    <li><a href="addbook.html">➕ Kitab Əlavə Et</a></li>
+                    <li><a href="admin.html">⚙️ Admin</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <button id="theme-toggle">🌙</button>
+                <a href="index.html#cart-section" class="cart-btn">
+                    🛒 Səbət (<span id="cart-count">0</span>)
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="add-book">
+            <h2>➕ Yeni Kitab Əlavə Et</h2>
+            <p style="color: #666; margin-bottom: 20px;">Kitabxanaya yeni bir kitab əlavə edin və başqaları ilə paylaşın.</p>
+            
+            <form id="book-form">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label for="title">Kitabın Adı *</label>
+                        <input type="text" id="title" placeholder="məs: Qaranquluq Dəmirlər" required>
+                    </div>
+                    <div>
+                        <label for="author">Müəllif *</label>
+                        <input type="text" id="author" placeholder="məs: Samil Vəliyev" required>
+                    </div>
+                    <div>
+                        <label for="category-select">Kateqoriya *</label>
+                        <select id="category-select" required>
+                            <option value="">Seçin...</option>
+                            <option value="Bədii">🎨 Bədii Ədəbiyyat</option>
+                            <option value="Elmi">🔬 Elmi</option>
+                            <option value="Tarix">📖 Tarix</option>
+                            <option value="Dedektiv">🔍 Dedektiv</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="pages">Səhifə Sayı *</label>
+                        <input type="number" id="pages" placeholder="300" min="1" required>
+                    </div>
+                    <div>
+                        <label for="year">Buraxılış İli *</label>
+                        <input type="number" id="year" placeholder="2024" min="1900" max="2099" required>
+                    </div>
+                    <div>
+                        <label for="price">Qiymət (₼) *</label>
+                        <input type="number" id="price" placeholder="25.99" step="0.01" min="0" required>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px;">
+                    <button type="submit" id="add-btn" style="background: #27ae60; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem;">✅ Kitabı Əlavə Et</button>
+                    <button type="reset" id="clear-all" style="background: #95a5a6; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem;">🔄 Formu Təmizlə</button>
+                </div>
+            </form>
+
+            <div id="toast-container"></div>
+        </section>
+
+        <section id="recent-books" style="margin-top: 40px;">
+            <h2>📚 Son Əlavə Edilən Kitablar</h2>
+            <ul id="book-list" style="max-width: 800px;"></ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Kitabxana & Bookshopping Sistemi</p>
+    </footer>
+
+    <script src="function.js"></script>
+    <script>
+        // Səhifə Yüklənəndə
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartUI();
+            displayRecentBooks();
+            // Temayı yükləyin
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // Kitab Əlavə Etmə - BACKEND API-YƏ GÖNDƏR
+        document.getElementById('book-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const bookData = {
+                id: Date.now().toString(),
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value,
+                category: document.getElementById('category-select').value,
+                pages: parseInt(document.getElementById('pages').value),
+                year: parseInt(document.getElementById('year').value),
+                price: parseFloat(document.getElementById('price').value)
+            };
+
+            const result = await submitBookForm(bookData);
+            showToast(result.message);
+            document.getElementById('book-form').reset();
+            displayRecentBooks();
+        });
+
+        // Tema Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.onclick = () => {
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            };
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <h1 class="logo">Book<span>Shop</span></h1>
+                <div class="header-actions">
+                    <button class="theme-toggle" id="theme-toggle">🌙</button>
+                </div>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">📚 Kataloq</a></li>
+                    <li><a href="addbook.html">➕ Kitab Əlavə Et</a></li>
+                    <li><a href="admin.html">⚙️ Admin</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Backend Status -->
+        <div class="panel">
+            <h2>🔗 Backend Bağlantısı</h2>
+            <div id="status" class="status disconnected">🔴 Yoxlanılır...</div>
+            <div class="info-box">
+                Backend: <strong>http://localhost:8080/api/books</strong>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard Stats -->
+        <div id="admin-stats" class="panel admin-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="total-books">0</div>
+                    <div class="stat-label">Cəmi Kitab</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Book Form -->
+        <div class="panel">
+            <h2>➕ Yeni Kitab Əlavə Et</h2>
+            <form id="admin-book-form" class="admin-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kitabın Adı *</label>
+                        <input type="text" id="admin-title" placeholder="Kitab adını daxil edin" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Müəllif *</label>
+                        <input type="text" id="admin-author" placeholder="Müəllifin adını daxil edin" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kateqoriya *</label>
+                        <select id="admin-category" required>
+                            <option value="">Seçin...</option>
+                            <option value="Bədii">🎨 Bədii Ədəbiyyat</option>
+                            <option value="Elmi">🔬 Elmi</option>
+                            <option value="Tarix">📖 Tarix</option>
+                            <option value="Dedektiv">🔍 Dedektiv</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Səhifə Sayı *</label>
+                        <input type="number" id="admin-pages" placeholder="Səhifə sayı" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nəşr Ili *</label>
+                        <input type="number" id="admin-year" placeholder="Nəşr ili" min="1900" max="2099" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Qiymət (₼) *</label>
+                        <input type="number" id="admin-price" placeholder="Qiymət" step="0.01" min="0" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" id="btn-add-book" class="btn-success" style="flex: 1;">✅ Kitabı Əlavə Et</button>
+                    <button type="reset" class="btn-secondary" style="flex: 1;">🔄 Formu Təmizlə</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="panel">
+            <h2>🔍 Kitabları Yönetim</h2>
+            
+            <div class="search-form">
+                <input type="text" id="admin-search" placeholder="Kitab adı, müəllif, ya kateqoriya axtar...">
+                <select id="admin-category-filter">
+                    <option value="">Bütün Kateqoriyalar</option>
+                    <option value="Bədii">🎨 Bədii</option>
+                    <option value="Elmi">🔬 Elmi</option>
+                    <option value="Tarix">📖 Tarix</option>
+                    <option value="Dedektiv">🔍 Dedektiv</option>
+                </select>
+                <button class="btn-search" onclick="adminSearchBooks()">🔎 Axtar</button>
+                <button class="btn-secondary" onclick="loadAllBooks()">📋 Hamısını Göstər</button>
+            </div>
+
+            <!-- Books Table -->
+            <div id="admin-books-container" class="admin-table-container">
+                <div class="empty">📚 Kitablar yüklənir...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeEditModal()">&times;</span>
+            <h2>📝 Kitabı Redaktə Et</h2>
+            <form id="admin-edit-form" class="admin-form">
+                <input type="hidden" id="edit-book-id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kitabın Adı *</label>
+                        <input type="text" id="edit-title" placeholder="Kitab adını daxil edin" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Müəllif *</label>
+                        <input type="text" id="edit-author" placeholder="Müəllifin adını daxil edin" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kateqoriya *</label>
+                        <select id="edit-category" required>
+                            <option value="">Seçin...</option>
+                            <option value="Bədii">🎨 Bədii Ədəbiyyat</option>
+                            <option value="Elmi">🔬 Elmi</option>
+                            <option value="Tarix">📖 Tarix</option>
+                            <option value="Dedektiv">🔍 Dedektiv</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Səhifə Sayı *</label>
+                        <input type="number" id="edit-pages" placeholder="Səhifə sayı" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nəşr Ili *</label>
+                        <input type="number" id="edit-year" placeholder="Nəşr ili" min="1900" max="2099" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Qiymət (₼) *</label>
+                        <input type="number" id="edit-price" placeholder="Qiymət" step="0.01" min="0" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-success" style="flex: 1;">✅ Yəniləmələri Saxla</button>
+                    <button type="button" class="btn-secondary" onclick="closeEditModal()" style="flex: 1;">❌ Ləğv Et</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <footer>
+        <p>&copy; 2026 BookShop İdarə Paneli</p>
+    </footer>
+
+    <script src="function.js"></script>
+    <script>
+        // Tema Toggle
+        document.getElementById('theme-toggle').onclick = () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        };
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Form Submit
+        document.getElementById('admin-book-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const bookData = {
+                id: Date.now().toString(),
+                title: document.getElementById('admin-title').value,
+                author: document.getElementById('admin-author').value,
+                category: document.getElementById('admin-category').value,
+                pages: parseInt(document.getElementById('admin-pages').value),
+                year: parseInt(document.getElementById('admin-year').value),
+                price: parseFloat(document.getElementById('admin-price').value)
+            };
+
+            const result = await submitBookForm(bookData);
+            showToast(result.message);
+            
+            if (result.success) {
+                document.getElementById('admin-book-form').reset();
+                loadAllBooks();
+            }
+        });
+
+        // Edit Form Submit
+        document.getElementById('admin-edit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const bookId = document.getElementById('edit-book-id').value;
+            const bookData = {
+                id: bookId,
+                title: document.getElementById('edit-title').value,
+                author: document.getElementById('edit-author').value,
+                category: document.getElementById('edit-category').value,
+                pages: parseInt(document.getElementById('edit-pages').value),
+                year: parseInt(document.getElementById('edit-year').value),
+                price: parseFloat(document.getElementById('edit-price').value)
+            };
+
+            const result = await updateAdminBook(bookId, bookData);
+            showToast(result.message);
+            
+            if (result.success) {
+                closeEditModal();
+                loadAllBooks();
+            }
+        });
+
+        // Search on input
+        document.getElementById('admin-search').addEventListener('keyup', () => {
+            adminSearchBooks();
+        });
+
+        document.getElementById('admin-category-filter').addEventListener('change', () => {
+            adminSearchBooks();
+        });
+
+        // Page Load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkConnection();
+            loadAllBooks();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,801 @@
+/* 1. Ümumi Tənzimləmələr */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    transition: 0.3s;
+}
+
+main {
+    max-width: 1000px;
+    margin: 25px auto;
+    padding: 25px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 2. Header (Column İyerarxiya) */
+header {
+    background-color: #1a252f;
+    color: white;
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.header-container {
+    display: flex;
+    flex-direction: column;
+    /* Loqonu yuxarıda saxlayır */
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    font-size: 2rem;
+    margin: 0;
+    font-weight: 800;
+}
+
+.logo span {
+    color: #27ae60;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-links a {
+    color: #bdc3c7;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.nav-links a:hover {
+    color: #27ae60;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.cart-btn {
+    background: #27ae60;
+    color: white;
+    text-decoration: none;
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-weight: bold;
+}
+
+#theme-toggle {
+    background: #34495e;
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* 3. Form və İdarəetmə Paneli */
+#book-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+#book-form input,
+#book-form select {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    flex: 1;
+    min-width: 150px;
+}
+
+#add-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+}
+
+#clear-all {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Axtarış Paneli (Controls) */
+.controls {
+    display: flex;
+    gap: 15px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border: 1px solid #e0e0e0;
+    flex-wrap: wrap;
+}
+
+#search-input {
+    flex: 2;
+    min-width: 200px;
+    padding: 10px;
+    border: 1px solid #ccd1d1;
+    border-radius: 8px;
+}
+
+#filter-category,
+#sort-books {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccd1d1;
+    border-radius: 8px;
+}
+
+/* 4. Siyahı və Səbət */
+#book-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+#book-list li {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.price-tag {
+    color: #27ae60;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.badge {
+    background: #e67e22;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    align-self: flex-start;
+    font-size: 0.8rem;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.add-to-cart-btn {
+    grid-column: span 2;
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.edit-btn {
+    background: #f39c12;
+    color: white;
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.delete-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Cart Container Styling */
+.cart-container {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.cart-container h2 {
+    margin-top: 0;
+}
+
+#cart-list {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+#cart-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+#cart-list li:last-child {
+    border-bottom: none;
+}
+
+#cart-list span {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#cart-list button {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#cart-list button:hover {
+    background: #c0392b;
+}
+
+.cart-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #ddd;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* 5. Qaranlıq Rejim */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode main {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode header {
+    background: #000;
+}
+
+body.dark-mode #book-list li,
+body.dark-mode .controls {
+    background: #2c2c2c;
+    border-color: #444;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+    background: #333;
+    color: white;
+    border-color: #555;
+}
+
+body.dark-mode .cart-container {
+    background: #2c2c2c;
+    border-color: #444;
+}
+
+body.dark-mode #cart-list li {
+    border-bottom-color: #444;
+}
+
+body.dark-mode .cart-summary {
+    border-top-color: #444;
+}
+
+/* Toast */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.toast {
+    background: #333;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+/* 6. API Sistem Paneli (index2.html) */
+.panel {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .panel {
+    background: #2a2a2a;
+}
+
+.panel h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #1a252f;
+    border-bottom: 2px solid #27ae60;
+    padding-bottom: 10px;
+}
+
+body.dark-mode .panel h2 {
+    color: #e0e0e0;
+}
+
+.status {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.status.connected {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status.disconnected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .search-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+.btn-search {
+    background: #3498db;
+    color: white;
+    grid-column: 3;
+}
+
+.btn-search:hover {
+    background: #2980b9;
+}
+
+.books-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.book-item {
+    background: #f9f9f9;
+    border-left: 4px solid #27ae60;
+    padding: 15px;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+body.dark-mode .book-item {
+    background: #333;
+    border-left-color: #27ae60;
+}
+
+.book-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.book-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1a252f;
+    margin-bottom: 8px;
+}
+
+body.dark-mode .book-title {
+    color: #e0e0e0;
+}
+
+.book-meta {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 15px;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+body.dark-mode .book-meta {
+    color: #aaa;
+}
+
+.book-price {
+    background: #27ae60;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.empty {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #3498db;
+}
+
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    margin-top: 40px;
+}
+
+.info-box {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+body.dark-mode .info-box {
+    background: #1e3a5f;
+    color: #b0d4ff;
+}
+
+/* 7. Admin Panel Stillər */
+
+/* Admin Dashboard Stats */
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 0;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: #f0f7ff;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+}
+
+body.dark-mode .stat-card {
+    background: #1e3a5f;
+    border-left-color: #3498db;
+}
+
+.stat-icon {
+    font-size: 2rem;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+body.dark-mode .stat-label {
+    color: #aaa;
+}
+
+/* Admin Form */
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    font-weight: bond;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+body.dark-mode .form-group label {
+    color: #e0e0e0;
+}
+
+.form-group input,
+.form-group select {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select {
+    background: #333;
+    color: white;
+    border-color: #555;
+}
+
+/* Admin Table */
+.admin-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+body.dark-mode .admin-table-container {
+    border-color: #555;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+body.dark-mode .admin-table {
+    background: #2c2c2c;
+}
+
+.admin-table thead {
+    background: #f8f9fa;
+    border-bottom: 2px solid #27ae60;
+}
+
+body.dark-mode .admin-table thead {
+    background: #1e1e1e;
+    border-bottom-color: #27ae60;
+}
+
+.admin-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: bold;
+    color: #1a252f;
+}
+
+body.dark-mode .admin-table th {
+    color: #e0e0e0;
+}
+
+.admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+body.dark-mode .admin-table td {
+    border-bottom-color: #444;
+    color: #e0e0e0;
+}
+
+.admin-table tbody tr:hover {
+    background: #f5f5f5;
+}
+
+body.dark-mode .admin-table tbody tr:hover {
+    background: #333;
+}
+
+.admin-table .price-badge {
+    background: #27ae60;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* Buttons */
+.btn-success {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-success:hover {
+    background: #229954;
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+.btn-edit {
+    background: #f39c12;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    margin-right: 5px;
+}
+
+.btn-edit:hover {
+    background: #d68910;
+}
+
+.btn-delete {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-delete:hover {
+    background: #c0392b;
+}
+
+.btn-search {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-search:hover {
+    background: #2980b9;
+}
+
+/* Modal Dialog */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .modal-content {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+}
+
+.modal-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.modal-close:hover {
+    color: #000;
+}
+
+body.dark-mode .modal-close:hover {
+    color: #fff;
+}
