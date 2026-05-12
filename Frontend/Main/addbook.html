@@ -37,33 +37,41 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div>
                         <label for="title">Kitabın Adı *</label>
-                        <input type="text" id="title" placeholder="məs: Qaranquluq Dəmirlər" required>
+                        <input type="text" id="title" value="Baskervillerin İti" required>
                     </div>
                     <div>
                         <label for="author">Müəllif *</label>
-                        <input type="text" id="author" placeholder="məs: Samil Vəliyev" required>
+                        <input type="text" id="author" value="Sir Arthur Conan Doyle" required>
                     </div>
                     <div>
                         <label for="category-select">Kateqoriya *</label>
                         <select id="category-select" required>
-                            <option value="">Seçin...</option>
+                            <option value="Dedektiv" selected>🔍 Dedektiv</option>
                             <option value="Bədii">🎨 Bədii Ədəbiyyat</option>
                             <option value="Elmi">🔬 Elmi</option>
                             <option value="Tarix">📖 Tarix</option>
-                            <option value="Dedektiv">🔍 Dedektiv</option>
                         </select>
                     </div>
                     <div>
                         <label for="pages">Səhifə Sayı *</label>
-                        <input type="number" id="pages" placeholder="300" min="1" required>
+                        <input type="number" id="pages" value="256" min="1" required>
                     </div>
                     <div>
                         <label for="year">Buraxılış İli *</label>
-                        <input type="number" id="year" placeholder="2024" min="1900" max="2099" required>
+                        <input type="number" id="year" value="1902" min="1900" max="2099" required>
                     </div>
                     <div>
                         <label for="price">Qiymət (₼) *</label>
-                        <input type="number" id="price" placeholder="25.99" step="0.01" min="0" required>
+                        <input type="number" id="price" value="24.99" step="0.01" min="0" required>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+                    <label for="book-image" style="display: block; font-weight: bold; margin-bottom: 10px;">📸 Kitabın Şəkili *</label>
+                    <input type="file" id="book-image" accept="image/*" required style="display: block; margin-bottom: 15px;">
+                    <div id="image-preview" style="display: none; margin-top: 15px;">
+                        <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Şəkil Önizləməsi:</p>
+                        <img id="preview-img" src="" alt="Kitab Şəkili" style="max-width: 150px; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                     </div>
                 </div>
                 
@@ -96,26 +104,44 @@
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-mode');
             }
+            // Şəkil Önizləməsini Qur
+            setupImagePreview('book-image', 'image-preview', 'preview-img');
         });
 
         // Kitab Əlavə Etmə - BACKEND API-YƏ GÖNDƏR
         document.getElementById('book-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const bookData = {
-                id: Date.now().toString(),
-                title: document.getElementById('title').value,
-                author: document.getElementById('author').value,
-                category: document.getElementById('category-select').value,
-                pages: parseInt(document.getElementById('pages').value),
-                year: parseInt(document.getElementById('year').value),
-                price: parseFloat(document.getElementById('price').value)
-            };
+            const imageInput = document.getElementById('book-image');
+            const file = imageInput.files[0];
+            
+            if (!file) {
+                showToast('❌ Zəhmət olmasa kitab şəklini seçin');
+                return;
+            }
 
-            const result = await submitBookForm(bookData);
-            showToast(result.message);
-            document.getElementById('book-form').reset();
-            displayRecentBooks();
+            try {
+                const bookData = {
+                    title: document.getElementById('title').value,
+                    author: document.getElementById('author').value,
+                    category: document.getElementById('category-select').value,
+                    pages: parseInt(document.getElementById('pages').value),
+                    year: parseInt(document.getElementById('year').value),
+                    price: parseFloat(document.getElementById('price').value)
+                };
+
+                // Kitabı yaradın və şəkili yüklə
+                const result = await submitBookForm(bookData, file);
+                showToast(result.message);
+                if (result.success) {
+                    document.getElementById('book-form').reset();
+                    document.getElementById('image-preview').style.display = 'none';
+                    displayRecentBooks();
+                }
+            } catch (error) {
+                showToast('❌ Kitab əlavə etmə xətası');
+                console.error(error);
+            }
         });
 
         // Tema Toggle

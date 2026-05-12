@@ -1,7 +1,72 @@
 const API_URL = 'http://localhost:8080/api/books';
+const API_BASE_URL = new URL(API_URL).origin;
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
+function getImageUrl(imageUrl) {
+    if (!imageUrl) return '';
+    if (/^(https?:\/\/|data:)/.test(imageUrl)) return imageUrl;
+    if (imageUrl.startsWith('/')) return `${API_BASE_URL}${imageUrl}`;
+    return `${API_BASE_URL}/${imageUrl}`;
+}
+
 // ===== ÜMUMİ FUNKSIYALAR =====
+
+// Fəyls Şəklini Base64-ə Çevir
+function convertFileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
+
+// Backend-ə Şəkil Yüklə
+async function uploadImageToBackend(bookId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch(`${API_URL}/${bookId}/upload-image`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            console.log('✅ Şəkil uğurla yükləndi:', bookId);
+            return { success: true };
+        } else {
+            const errorText = await response.text();
+            console.error('❌ Şəkil yükleme xətası:', response.status, errorText);
+            return { success: false, message: `Şəkil yükləmə xətası: ${response.status}` };
+        }
+    } catch (error) {
+        console.error('❌ Şəkil yükleme bağlantı xətası:', error);
+        return { success: false, message: 'Şəkil yükleme bağlantı xətası' };
+    }
+}
+
+// Şəkil Önizləməsini Göstər
+function setupImagePreview(imageInputId, previewContainerId, previewImgId) {
+    const imageInput = document.getElementById(imageInputId);
+    if (!imageInput) return;
+
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const previewContainer = document.getElementById(previewContainerId);
+                const previewImg = document.getElementById(previewImgId);
+                if (previewContainer && previewImg) {
+                    previewImg.src = event.target.result;
+                    previewContainer.style.display = 'block';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
 
 // Toast Mesajı
 let toastContainer = null;
@@ -143,22 +208,35 @@ function getBooks() {
 }
 
 function addBookToUI(book) {
-    const li = document.createElement('li');
+    const div = document.createElement('div');
     const price = book.price ? book.price.toFixed(2) : "0.00";
-    li.innerHTML = `
-        <div class="book-info">
-            <strong>${escapeHtml(book.title)}</strong>
-            <span>${escapeHtml(book.author)}</span>
-            <span class="badge">${escapeHtml(book.category)}</span>
-            <span class="price-tag">${price} ₼</span>
+    
+    // Kitab şəklini təyin et - backend-dən imageUrl istifadə et
+    const bookImage = book.imageUrl ? getImageUrl(book.imageUrl) : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"><rect fill="%23ddd" width="100" height="140"/><text x="50" y="70" text-anchor="middle" font-size="12" fill="%23999">📚</text></svg>';
+    
+    div.className = 'book-card';
+    div.innerHTML = `
+        <div class="book-image-container">
+            <img src="${bookImage}" alt="${escapeHtml(book.title)}" class="book-image">
+            <div class="book-overlay">
+                <button class="add-to-cart-btn" onclick='addToCart(${JSON.stringify(book)})'>🛒 Səbətə at</button>
+            </div>
         </div>
-        <div class="action-buttons">
-            <button class="add-to-cart-btn" onclick='addToCart(${JSON.stringify(book)})'>🛒 Səbətə at</button>
-            <button class="edit-btn" onclick='editBook(${JSON.stringify(book)})'>Redaktə</button>
-            <button class="delete-btn" onclick="deleteBook('${book.id}')">Sil</button>
+        <div class="book-info">
+            <h3>${escapeHtml(book.title)}</h3>
+            <p class="author">👤 ${escapeHtml(book.author)}</p>
+            <p class="category"><span class="badge">${escapeHtml(book.category)}</span></p>
+            <p class="details">📖 ${book.pages} səhifə | 📅 ${book.year}</p>
+            <div class="book-footer">
+                <span class="price">${price} ₼</span>
+                <div class="action-buttons">
+                    <button class="edit-btn" onclick='editBook(${JSON.stringify(book)})' title="Redaktə Et">✏️</button>
+                    <button class="delete-btn" onclick="deleteBook('${book.id}')" title="Sil">🗑️</button>
+                </div>
+            </div>
         </div>
     `;
-    if (bookList) bookList.appendChild(li);
+    if (bookList) bookList.appendChild(div);
 }
 
 function applyFiltersAndSort() {
@@ -203,6 +281,10 @@ async function applyBackendFiltersAndSort(search, category, sort) {
 
     if (sort === 'pages-asc') books.sort((a, b) => a.pages - b.pages);
     else if (sort === 'pages-desc') books.sort((a, b) => b.pages - a.pages);
+    else if (sort === 'price-asc') books.sort((a, b) => a.price - b.price);
+    else if (sort === 'price-desc') books.sort((a, b) => b.price - a.price);
+    else if (sort === 'year-asc') books.sort((a, b) => a.year - b.year);
+    else if (sort === 'year-desc') books.sort((a, b) => b.year - a.year);
     else if (sort === 'title-az') books.sort((a, b) => a.title.localeCompare(b.title));
 
     displayBooksInUI(books);
@@ -233,8 +315,9 @@ async function checkConnection() {
 }
 
 // Kitab Əlavə Et - Backend API-yə
-async function submitBookForm(bookData) {
+async function submitBookForm(bookData, imageFile) {
     try {
+        // Kitabı əvvəlcə yaradın (şəkil olmadan)
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -244,6 +327,17 @@ async function submitBookForm(bookData) {
         if (response.ok) {
             const savedBook = await response.json();
             console.log('✅ Kitab Backend-ə əlavə edildi:', savedBook);
+            
+            // Əgər şəkil varsa, onu ayrıca yüklə
+            if (imageFile && savedBook.id) {
+                const uploadResult = await uploadImageToBackend(savedBook.id, imageFile);
+                if (!uploadResult.success) {
+                    console.warn('⚠️ Şəkil yükləmə xətası:', uploadResult.message);
+                    // Kitab uğurla yaranıb, amma şəkil yükləmə xətası verdi
+                    return { success: true, message: '✅ Kitab əlavə edildi (şəkil yükləmə gecikdi)' };
+                }
+            }
+            
             return { success: true, message: '✅ Kitab uğurla əlavə edildi!' };
         } else {
             const errorText = await response.text();
@@ -298,6 +392,7 @@ function displayAdminTable(books) {
     table.innerHTML = `
         <thead>
             <tr>
+                <th>Şəkil</th>
                 <th>ID</th>
                 <th>Kitab Adı</th>
                 <th>Müəllif</th>
@@ -317,7 +412,11 @@ function displayAdminTable(books) {
     const tbody = document.getElementById('admin-table-body');
     books.forEach(book => {
         const tr = document.createElement('tr');
+        
+        const bookImage = book.imageUrl ? getImageUrl(book.imageUrl) : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"><rect fill="%23ddd" width="100" height="140"/><text x="50" y="70" text-anchor="middle" font-size="12" fill="%23999">📚</text></svg>';
+        
         tr.innerHTML = `
+            <td><img src="${bookImage}" alt="${escapeHtml(book.title)}" style="max-width: 40px; max-height: 60px; border-radius: 4px;"></td>
             <td><small>${escapeHtml(book.id)}</small></td>
             <td><strong>${escapeHtml(book.title)}</strong></td>
             <td>${escapeHtml(book.author)}</td>
@@ -388,6 +487,21 @@ function openEditModal(book) {
     document.getElementById('edit-pages').value = book.pages;
     document.getElementById('edit-year').value = book.year;
     document.getElementById('edit-price').value = book.price;
+    
+    // Şəkil Önizləməsini Göstər (əgər varsa)
+    if (book.imageUrl) {
+        const previewContainer = document.getElementById('edit-image-preview');
+        const previewImg = document.getElementById('edit-preview-img');
+        if (previewContainer && previewImg) {
+            previewImg.src = getImageUrl(book.imageUrl);
+            previewContainer.style.display = 'block';
+        }
+    } else {
+        const previewContainer = document.getElementById('edit-image-preview');
+        if (previewContainer) {
+            previewContainer.style.display = 'none';
+        }
+    }
 
     document.getElementById('editModal').style.display = 'block';
 }
@@ -491,26 +605,35 @@ function displayBooksForAddForm(books) {
     }
 
     bookList.innerHTML = '';
+    bookList.style.display = 'grid';
+    bookList.style.gridTemplateColumns = 'repeat(auto-fill, minmax(150px, 1fr))';
+    bookList.style.gap = '15px';
+    
     books.forEach(book => {
-        const li = document.createElement('li');
-        li.style.display = 'flex';
-        li.style.justifyContent = 'space-between';
-        li.style.alignItems = 'center';
-        li.style.padding = '12px';
-        li.style.borderBottom = '1px solid #eee';
-
-        li.innerHTML = `
-            <div>
-                <strong>${escapeHtml(book.title)}</strong>
-                <br>
-                <small style="color: #666;">👤 ${escapeHtml(book.author)} | 📖 ${escapeHtml(book.category)}</small>
+        const div = document.createElement('div');
+        div.style.cssText = `
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        `;
+        div.className = 'book-card-small';
+        
+        const bookImage = book.imageUrl ? getImageUrl(book.imageUrl) : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"><rect fill="%23ddd" width="100" height="140"/><text x="50" y="70" text-anchor="middle" font-size="12" fill="%23999">📚</text></svg>';
+        
+        div.innerHTML = `
+            <div style="position: relative; width: 100%; padding-bottom: 140%; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <img src="${bookImage}" alt="${escapeHtml(book.title)}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
             </div>
-            <div style="text-align: right;">
-                <div style="color: #27ae60; font-weight: bold;">${book.price?.toFixed(2) || '0.00'} ₼</div>
-                <button onclick="addToCart(${JSON.stringify(book)})" style="background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 5px;">🛒 Əlavə Et</button>
+            <div style="padding: 10px;">
+                <div style="font-weight: bold; font-size: 0.85rem; color: #1a252f; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 5px;">${escapeHtml(book.title)}</div>
+                <div style="color: #666; font-size: 0.75rem; margin-bottom: 5px;">${escapeHtml(book.author)}</div>
+                <div style="color: #27ae60; font-weight: bold; font-size: 0.9rem; margin-bottom: 8px;">${book.price?.toFixed(2) || '0.00'} ₼</div>
+                <button onclick="addToCart(${JSON.stringify(book)})" style="background: #3498db; color: white; border: none; padding: 5px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 0.8rem; font-weight: bold;">🛒 Əlavə Et</button>
             </div>
         `;
-        bookList.appendChild(li);
+        bookList.appendChild(div);
     });
 }
 

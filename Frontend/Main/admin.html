@@ -89,6 +89,17 @@
                     </div>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>📸 Kitabın Şəkili *</label>
+                        <input type="file" id="admin-image" accept="image/*" required>
+                        <div id="admin-image-preview" style="display: none; margin-top: 15px;">
+                            <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Şəkil Önizləməsi:</p>
+                            <img id="admin-preview-img" src="" alt="Kitab Şəkili" style="max-width: 120px; max-height: 180px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                        </div>
+                    </div>
+                </div>
+
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button type="submit" id="btn-add-book" class="btn-success" style="flex: 1;">✅ Kitabı Əlavə Et</button>
                     <button type="reset" class="btn-secondary" style="flex: 1;">🔄 Formu Təmizlə</button>
@@ -167,6 +178,17 @@
                     </div>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>📸 Kitabın Şəkili (Ixtiyari)</label>
+                        <input type="file" id="edit-image" accept="image/*">
+                        <div id="edit-image-preview" style="display: none; margin-top: 10px;">
+                            <p style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">Yeni Şəkil Önizləməsi:</p>
+                            <img id="edit-preview-img" src="" alt="Kitab Şəkili" style="max-width: 100px; max-height: 150px; border-radius: 4px;">
+                        </div>
+                    </div>
+                </div>
+
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button type="submit" class="btn-success" style="flex: 1;">✅ Yəniləmələri Saxla</button>
                     <button type="button" class="btn-secondary" onclick="closeEditModal()" style="flex: 1;">❌ Ləğv Et</button>
@@ -194,26 +216,47 @@
             document.body.classList.add('dark-mode');
         }
 
+        // Şəkil Önizləməsini Qur
+        setupImagePreview('admin-image', 'admin-image-preview', 'admin-preview-img');
+        setupImagePreview('edit-image', 'edit-image-preview', 'edit-preview-img');
+
+        // Şəkil Önizləməsini Qur
+        setupImagePreview('admin-image', 'admin-image-preview', 'admin-preview-img');
+
         // Form Submit
         document.getElementById('admin-book-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const bookData = {
-                id: Date.now().toString(),
-                title: document.getElementById('admin-title').value,
-                author: document.getElementById('admin-author').value,
-                category: document.getElementById('admin-category').value,
-                pages: parseInt(document.getElementById('admin-pages').value),
-                year: parseInt(document.getElementById('admin-year').value),
-                price: parseFloat(document.getElementById('admin-price').value)
-            };
-
-            const result = await submitBookForm(bookData);
-            showToast(result.message);
+            const imageInput = document.getElementById('admin-image');
+            const file = imageInput.files[0];
             
-            if (result.success) {
-                document.getElementById('admin-book-form').reset();
-                loadAllBooks();
+            if (!file) {
+                showToast('❌ Zəhmət olmasa kitab şəklini seçin');
+                return;
+            }
+
+            try {
+                const bookData = {
+                    title: document.getElementById('admin-title').value,
+                    author: document.getElementById('admin-author').value,
+                    category: document.getElementById('admin-category').value,
+                    pages: parseInt(document.getElementById('admin-pages').value),
+                    year: parseInt(document.getElementById('admin-year').value),
+                    price: parseFloat(document.getElementById('admin-price').value)
+                };
+
+                // Kitabı yaradın və şəkili yüklə
+                const result = await submitBookForm(bookData, file);
+                showToast(result.message);
+                
+                if (result.success) {
+                    document.getElementById('admin-book-form').reset();
+                    document.getElementById('admin-image-preview').style.display = 'none';
+                    loadAllBooks();
+                }
+            } catch (error) {
+                showToast('❌ Kitab əlavə etmə xətası');
+                console.error(error);
             }
         });
 
@@ -222,22 +265,39 @@
             e.preventDefault();
             
             const bookId = document.getElementById('edit-book-id').value;
-            const bookData = {
-                id: bookId,
-                title: document.getElementById('edit-title').value,
-                author: document.getElementById('edit-author').value,
-                category: document.getElementById('edit-category').value,
-                pages: parseInt(document.getElementById('edit-pages').value),
-                year: parseInt(document.getElementById('edit-year').value),
-                price: parseFloat(document.getElementById('edit-price').value)
-            };
+            const imageInput = document.getElementById('edit-image');
+            let uploadImageResult = { success: true };
 
-            const result = await updateAdminBook(bookId, bookData);
-            showToast(result.message);
-            
-            if (result.success) {
-                closeEditModal();
-                loadAllBooks();
+            try {
+                const bookData = {
+                    title: document.getElementById('edit-title').value,
+                    author: document.getElementById('edit-author').value,
+                    category: document.getElementById('edit-category').value,
+                    pages: parseInt(document.getElementById('edit-pages').value),
+                    year: parseInt(document.getElementById('edit-year').value),
+                    price: parseFloat(document.getElementById('edit-price').value)
+                };
+
+                // Kitabı yəniləyin
+                const result = await updateAdminBook(bookId, bookData);
+                showToast(result.message);
+                
+                // Əgər yeni şəkil seçilirsə, onu yüklə
+                if (result.success && imageInput && imageInput.files.length > 0) {
+                    const file = imageInput.files[0];
+                    uploadImageResult = await uploadImageToBackend(bookId, file);
+                    if (!uploadImageResult.success) {
+                        showToast('⚠️ Şəkil yükləmə xətası, amma kitab yənilədi');
+                    }
+                }
+                
+                if (result.success) {
+                    closeEditModal();
+                    loadAllBooks();
+                }
+            } catch (error) {
+                showToast('❌ Kitab yəniləmə xətası');
+                console.error(error);
             }
         });
 
