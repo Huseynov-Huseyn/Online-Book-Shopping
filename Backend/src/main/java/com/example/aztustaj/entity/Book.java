@@ -36,4 +36,6 @@ public class Book {
 
     @Column(name = "price", nullable = false)
     private double price;
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;  // Məsələn: "/images/book-123.jpg"
 }

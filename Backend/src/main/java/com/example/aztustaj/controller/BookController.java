@@ -6,7 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +47,36 @@ public class BookController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Kitabları gətirərkən xəta: " + e.getMessage()));
+        }
+    }
+
+    // Şəkil yüklə (File System)
+    @PostMapping("/{id}/upload-image")
+    public ResponseEntity<?> uploadImage(@PathVariable String id, @RequestParam("file") MultipartFile file) {
+        try {
+            // Fayl adı yarat (kitab ID-si ilə)
+            String fileName = "book-" + id + ".jpg";  // Və ya file.getOriginalFilename() istifadə edin
+            Path uploadPath = Paths.get("src/main/resources/static/images/");  // Qovluq yolu
+            Files.createDirectories(uploadPath);  // Qovluq yoxdursa yarat
+
+            Path filePath = uploadPath.resolve(fileName);
+            Files.write(filePath, file.getBytes());  // Faylı yaz
+
+            String imageUrl = "/images/" + fileName;  // Web-də əlçatan URL
+
+            // Database-də yenilə
+            Book book = bookService.getBookById(id);
+            if (book != null) {
+                book.setImageUrl(imageUrl);
+                bookService.saveBook(book);
+                return ResponseEntity.ok(Map.of("message", "Şəkil yükləndi", "imageUrl", imageUrl));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Kitab tapılmadı"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Şəkil yüklənərkən xəta: " + e.getMessage()));
         }
     }
 
