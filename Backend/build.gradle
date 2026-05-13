@@ -35,7 +35,24 @@ dependencies {
 
     // 🔄 Validation (məs: @NotNull və s.)
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    dependencies {
+        // Mövcud dependencies...
 
+        // Spring Security (User sistemi üçün)
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+
+        // Password encoding üçün (BCrypt)
+        implementation 'org.springframework.security:spring-security-crypto'
+
+        // JPA/Hibernate (Database üçün)
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+        // Lombok (Getter/Setter-ləri avtomatyalaşdırmaq ��çün - isteğe bağlı)
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+
+        // Digər mövcud dependencies...
+    }
     // 🧪 Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
