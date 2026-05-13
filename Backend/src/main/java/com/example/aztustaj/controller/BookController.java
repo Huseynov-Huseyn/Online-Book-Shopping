@@ -3,6 +3,7 @@ package com.example.aztustaj.controller;
 import com.example.aztustaj.entity.Book;
 import com.example.aztustaj.service.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,9 @@ import java.util.Map;
 public class BookController {
 
     private final BookService bookService;
+
+    @Value("${app.upload.images-path}")
+    private String imagesPath;
 
     // Tüm kitabları al (axtarış, filtre, sıralama ilə)
     @GetMapping
@@ -54,26 +58,37 @@ public class BookController {
     @PostMapping("/{id}/upload-image")
     public ResponseEntity<?> uploadImage(@PathVariable String id, @RequestParam("file") MultipartFile file) {
         try {
-            // Fayl adı yarat (kitab ID-si ilə)
-            String fileName = "book-" + id + ".jpg";  // Və ya file.getOriginalFilename() istifadə edin
-            Path uploadPath = Paths.get("src/main/resources/static/images/");  // Qovluq yolu
-            Files.createDirectories(uploadPath);  // Qovluq yoxdursa yarat
+            Book book = bookService.getBookById(id);
+            if (book == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Kitab tapılmadı. Göndərilən id: " + id));
+            }
+
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Şəkil faylı boşdur"));
+            }
+
+            String fileName = "book-" + id + ".jpg";
+            Path uploadPath = Paths.get(imagesPath)
+                    .toAbsolutePath()
+                    .normalize();
+
+            Files.createDirectories(uploadPath);
 
             Path filePath = uploadPath.resolve(fileName);
-            Files.write(filePath, file.getBytes());  // Faylı yaz
+            Files.write(filePath, file.getBytes());
 
-            String imageUrl = "/images/" + fileName;  // Web-də əlçatan URL
+            String imageUrl = "/images/" + fileName;
 
-            // Database-də yenilə
-            Book book = bookService.getBookById(id);
-            if (book != null) {
-                book.setImageUrl(imageUrl);
-                bookService.saveBook(book);
-                return ResponseEntity.ok(Map.of("message", "Şəkil yükləndi", "imageUrl", imageUrl));
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Kitab tapılmadı"));
-            }
+            book.setImageUrl(imageUrl);
+            Book savedBook = bookService.saveBook(book);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Şəkil yükləndi",
+                    "bookId", savedBook.getId(),
+                    "imageUrl", savedBook.getImageUrl()
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Şəkil yüklənərkən xəta: " + e.getMessage()));

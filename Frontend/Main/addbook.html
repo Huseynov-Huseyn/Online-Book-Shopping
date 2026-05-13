@@ -4,154 +4,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kitab Əlavə Et</title>
+    <title>Kitab Əlavə Et | BookShop</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <header>
         <div class="header-container">
-            <h1 class="logo">Book<span>Shop</span></h1>
+            <a href="index.html" class="logo">Book<span>Shop</span></a>
             <nav>
                 <ul class="nav-links">
                     <li><a href="index.html">📚 Kataloq</a></li>
-                    <li><a href="addbook.html">➕ Kitab Əlavə Et</a></li>
+                    <li><a href="addbook.html" class="active">➕ Əlavə Et</a></li>
                     <li><a href="admin.html">⚙️ Admin</a></li>
                 </ul>
             </nav>
             <div class="header-actions">
                 <button id="theme-toggle">🌙</button>
-                <a href="index.html#cart-section" class="cart-btn">
-                    🛒 Səbət (<span id="cart-count">0</span>)
-                </a>
+                <button class="btn cart-btn">
+                    <i class="fas fa-shopping-cart"></i> (<span id="cart-count">0</span>)
+                </button>
             </div>
         </div>
     </header>
 
-    <main>
-        <section id="add-book">
-            <h2>➕ Yeni Kitab Əlavə Et</h2>
-            <p style="color: #666; margin-bottom: 20px;">Kitabxanaya yeni bir kitab əlavə edin və başqaları ilə paylaşın.</p>
-            
+    <main class="container">
+        <div class="panel fade-in" style="max-width: 800px; margin: 0 auto;">
+            <div class="section-title">
+                <i class="fas fa-plus-circle" style="color: var(--success)"></i> Yeni Kitab Paylaş
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">
+                Sevdiyiniz kitabları kitabxanaya əlavə edin və digər oxucularla paylaşın.
+            </p>
+
             <form id="book-form">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div>
+                <div class="form-grid">
+                    <div class="input-group">
                         <label for="title">Kitabın Adı *</label>
-                        <input type="text" id="title" value="Baskervillerin İti" required>
+                        <input type="text" id="title" value="The Valley of Fear" required>
                     </div>
-                    <div>
+                    <div class="input-group">
                         <label for="author">Müəllif *</label>
                         <input type="text" id="author" value="Sir Arthur Conan Doyle" required>
                     </div>
-                    <div>
+                    <div class="input-group">
                         <label for="category-select">Kateqoriya *</label>
                         <select id="category-select" required>
-                            <option value="Dedektiv" selected>🔍 Dedektiv</option>
-                            <option value="Bədii">🎨 Bədii Ədəbiyyat</option>
-                            <option value="Elmi">🔬 Elmi</option>
-                            <option value="Tarix">📖 Tarix</option>
+                            <option value="Detective" selected>🔍 Dedektiv</option>
+                            <option value="Fiction">🎨 Bədii</option>
+                            <option value="Science">🔬 Elmi</option>
+                            <option value="History">📖 Tarix</option>
                         </select>
                     </div>
-                    <div>
+                    <div class="input-group">
                         <label for="pages">Səhifə Sayı *</label>
-                        <input type="number" id="pages" value="256" min="1" required>
+                        <input type="number" id="pages" value="180" min="1" required>
                     </div>
-                    <div>
-                        <label for="year">Buraxılış İli *</label>
-                        <input type="number" id="year" value="1902" min="1900" max="2099" required>
+                    <div class="input-group">
+                        <label for="year">Nəşr İli *</label>
+                        <input type="number" id="year" value="1915" min="1500" max="2099" required>
                     </div>
-                    <div>
+                    <div class="input-group">
                         <label for="price">Qiymət (₼) *</label>
-                        <input type="number" id="price" value="24.99" step="0.01" min="0" required>
+                        <input type="number" id="price" value="18.50" step="0.01" min="0" required>
                     </div>
                 </div>
 
-                <div style="margin-top: 20px; padding: 20px; background: #f0f0f0; border-radius: 8px;">
-                    <label for="book-image" style="display: block; font-weight: bold; margin-bottom: 10px;">📸 Kitabın Şəkili *</label>
-                    <input type="file" id="book-image" accept="image/*" required style="display: block; margin-bottom: 15px;">
-                    <div id="image-preview" style="display: none; margin-top: 15px;">
-                        <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Şəkil Önizləməsi:</p>
-                        <img id="preview-img" src="" alt="Kitab Şəkili" style="max-width: 150px; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                <div style="margin-top: 30px; padding: 30px; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 2px dashed var(--border);">
+                    <label for="book-image" style="display: block; font-weight: 600; margin-bottom: 15px; cursor: pointer;">
+                        <i class="fas fa-cloud-upload-alt" style="margin-right: 10px;"></i> Kitabın Üz Qabığı *
+                    </label>
+                    <input type="file" id="book-image" accept="image/*" required style="width: 100%;">
+                    
+                    <div id="image-preview" style="display: none; margin-top: 20px; text-align: center;">
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Seçilmiş Şəkil:</p>
+                        <img id="preview-img" src="" alt="Önizləmə" style="max-width: 200px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg);" onerror="handleImageError(this)">
                     </div>
                 </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px;">
-                    <button type="submit" id="add-btn" style="background: #27ae60; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem;">✅ Kitabı Əlavə Et</button>
-                    <button type="reset" id="clear-all" style="background: #95a5a6; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem;">🔄 Formu Təmizlə</button>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 40px;">
+                    <button type="submit" class="btn btn-primary">✅ Təsdiqlə və Əlavə Et</button>
+                    <button type="reset" class="btn btn-secondary">🔄 Formu Təmizlə</button>
                 </div>
             </form>
+        </div>
 
-            <div id="toast-container"></div>
-        </section>
-
-        <section id="recent-books" style="margin-top: 40px;">
-            <h2>📚 Son Əlavə Edilən Kitablar</h2>
-            <ul id="book-list" style="max-width: 800px;"></ul>
+        <section id="recent-books" style="margin-top: 60px;" class="fade-in">
+            <div class="section-title" style="font-size: 1.5rem;">
+                <i class="fas fa-history" style="color: var(--primary)"></i> Son Əlavə Edilənlər
+            </div>
+            <div id="book-list" class="books-grid">
+                <!-- Recent books will be injected here -->
+            </div>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2026 Kitabxana & Bookshopping Sistemi</p>
+        <p>&copy; 2026 Kitabxana və Kitab Satışı Sistemi</p>
     </footer>
 
     <script src="function.js"></script>
     <script>
-        // Səhifə Yüklənəndə
-        document.addEventListener('DOMContentLoaded', () => {
-            updateCartUI();
-            displayRecentBooks();
-            // Temayı yükləyin
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-            }
-            // Şəkil Önizləməsini Qur
-            setupImagePreview('book-image', 'image-preview', 'preview-img');
-        });
-
-        // Kitab Əlavə Etmə - BACKEND API-YƏ GÖNDƏR
         document.getElementById('book-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const imageInput = document.getElementById('book-image');
             const file = imageInput.files[0];
             
-            if (!file) {
-                showToast('❌ Zəhmət olmasa kitab şəklini seçin');
-                return;
-            }
+            if (!file) return showToast('❌ Şəkil seçilməyib', 'danger');
 
-            try {
-                const bookData = {
-                    title: document.getElementById('title').value,
-                    author: document.getElementById('author').value,
-                    category: document.getElementById('category-select').value,
-                    pages: parseInt(document.getElementById('pages').value),
-                    year: parseInt(document.getElementById('year').value),
-                    price: parseFloat(document.getElementById('price').value)
-                };
+            const bookData = {
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value,
+                category: document.getElementById('category-select').value,
+                pages: parseInt(document.getElementById('pages').value),
+                year: parseInt(document.getElementById('year').value),
+                price: parseFloat(document.getElementById('price').value)
+            };
 
-                // Kitabı yaradın və şəkili yüklə
-                const result = await submitBookForm(bookData, file);
-                showToast(result.message);
-                if (result.success) {
-                    document.getElementById('book-form').reset();
-                    document.getElementById('image-preview').style.display = 'none';
-                    displayRecentBooks();
-                }
-            } catch (error) {
-                showToast('❌ Kitab əlavə etmə xətası');
-                console.error(error);
+            const result = await submitBookForm(bookData, file);
+            if (result.success) {
+                document.getElementById('book-form').reset();
+                document.getElementById('image-preview').style.display = 'none';
+                loadRecentBooks();
             }
         });
-
-        // Tema Toggle
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.onclick = () => {
-                document.body.classList.toggle('dark-mode');
-                localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-            };
-        }
     </script>
 </body>
 

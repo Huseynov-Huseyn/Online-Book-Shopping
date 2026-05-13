@@ -4,135 +4,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kitabxana Kataloqu</title>
+    <title>BookShop | Premium Kitabxana</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <header>
         <div class="header-container">
-            <h1 class="logo">Book<span>Shop</span></h1>
+            <a href="index.html" class="logo">Book<span>Shop</span></a>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="index.html">📚 Kataloq</a></li>
-                    <li><a href="addbook.html">➕ Kitab Əlavə Et</a></li>
+                    <li><a href="index.html" class="active">📚 Kataloq</a></li>
+                    <li><a href="addbook.html">➕ Əlavə Et</a></li>
                     <li><a href="admin.html">⚙️ Admin</a></li>
                 </ul>
             </nav>
             <div class="header-actions">
-                <button id="theme-toggle">🌙</button>
-                <a href="#" id="cart-toggle" class="cart-btn">
-                    🛒 Səbət (<span id="cart-count">0</span>)
-                </a>
+                <button id="theme-toggle" title="Mövzunu dəyiş">🌙</button>
+                <button id="cart-toggle-btn" class="btn cart-btn">
+                    <i class="fas fa-shopping-cart"></i> (<span id="cart-count">0</span>)
+                </button>
             </div>
         </div>
     </header>
 
-    <main>
-        <section id="welcome">
-            <div style="text-align: center; padding: 40px 20px;">
-                <h2 style="font-size: 2.5rem; color: #1a252f; margin-bottom: 15px;">📚 BookShop Kitabxanasına Xoş Gəldiniz</h2>
-                <p style="font-size: 1.1rem; color: #666; margin-bottom: 30px; line-height: 1.6;">
-                    Ən geniş kitab kolleksiyasını kəşf edin. 
-                    <br>
-                    Bədii ədəbiyyatdan tutmuş elmi əsərlərə kimi hər kəs üçün nəsə var.
+    <main class="container">
+        <section id="hero" class="fade-in">
+            <div style="text-align: center; padding: 60px 0;">
+                <h1 style="font-size: 3.5rem; margin-bottom: 20px;">Dünyanın Bütün Kitabları <br> <span
+                        style="color: var(--primary)">Sizin Üçün</span></h1>
+                <p style="color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto 40px;">
+                    Ən geniş kitab kolleksiyasını kəşf edin. Klassik əsərlərdən müasir bestsellerlərə qədər hər şey
+                    burada.
                 </p>
-                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                    <a href="#book-list-section" style="display: inline-block; background: #27ae60; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: bold; cursor: pointer;">🔍 Kitabları Gör</a>
-                    <a href="addbook.html" style="display: inline-block; background: #3498db; color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: bold;">➕ Yeni Kitab Əlavə Et</a>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <a href="#katalog" class="btn btn-primary">İndi Kəşf Et</a>
+                    <a href="addbook.html" class="btn btn-secondary">Kitab Paylaş</a>
                 </div>
             </div>
         </section>
 
-        <section id="cart-section" style="display: none;">
-            <div class="cart-container">
-                <h2>Səbətiniz</h2>
-                <ul id="cart-list"></ul>
-                <div class="cart-summary">
-                    <span>Ümumi Məbləğ:</span>
-                    <strong id="cart-total">0.00 ₼</strong>
-                </div>
+        <section id="katalog" class="fade-in">
+            <div class="section-title">
+                <i class="fas fa-layer-group" style="color: var(--primary)"></i> Mövcud Kitablar
             </div>
-        </section>
 
-        <hr>
-        <div id="stats-panel">Bazada cəmi: <strong id="total-count">0</strong> növ kitab var.</div>
+            <div class="controls panel">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Kitab adı, müəllif və ya kateqoriya..."
+                        onkeyup="applyFiltersAndSort()">
+                </div>
 
-        <section id="book-list-section">
-            <h2>Mövcud Kitablar</h2>
-            <div class="controls">
-                <input type="text" id="search-input" placeholder="Kitab və ya müəllif axtar...">
-                <select id="filter-category">
+                <select id="filter-category" onchange="applyFiltersAndSort()">
                     <option value="all">Bütün Kateqoriyalar</option>
-                    <option value="Bədii">Bədii</option>
-                    <option value="Elmi">Elmi</option>
-                    <option value="Tarix">Tarix</option>
-                    <option value="Dedektiv">Dedektiv</option>
+                    <option value="Bədii">🎨 Bədii</option>
+                    <option value="Elmi">🔬 Elmi</option>
+                    <option value="Tarix">📖 Tarix</option>
+                    <option value="Dedektiv">🔍 Dedektiv</option>
                 </select>
-                <select id="sort-books">
-                    <option value="default">Sıralama Metodu</option>
-                    <option value="pages-asc">Səhifə (Az-Çox)</option>
-                    <option value="pages-desc">Səhifə (Çox-Az)</option>
-                    <option value="price-asc">Qiymət (Aşağı-Yüksək)</option>
-                    <option value="price-desc">Qiymət (Yüksək-Aşağı)</option>
-                    <option value="year-asc">Il (Eski-Yeni)</option>
-                    <option value="year-desc">Il (Yeni-Eski)</option>
+
+                <select id="sort-books" onchange="applyFiltersAndSort()">
+                    <option value="default">Sıralama</option>
+                    <option value="price-asc">Qiymət (Ucuzdan)</option>
+                    <option value="price-desc">Qiymət (Bahadan)</option>
+                    <option value="year-desc">Yeni Nəşrlər</option>
                     <option value="title-az">Ad (A-Z)</option>
                 </select>
             </div>
-            <div id="book-list" class="books-grid"></div>
+
+            <div id="stats-panel" style="margin-bottom: 20px; color: var(--text-muted); font-weight: 600;">
+                <i class="fas fa-database"></i> Bazada cəmi <span id="total-count"
+                    style="color: var(--primary)">0</span> kitab var.
+            </div>
+
+            <div id="book-list" class="books-grid">
+                <!-- Books will be injected here -->
+            </div>
         </section>
     </main>
 
+    <!-- Cart Sidebar -->
+    <div id="cart-panel" class="cart-panel">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-basket"></i> Səbətiniz</h3>
+            <button id="close-cart" class="close-cart">&times;</button>
+        </div>
+        <div id="cart-list">
+            <!-- Cart items -->
+        </div>
+        <div class="cart-total">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <span>Cəmi:</span>
+                <strong id="cart-total">0.00 ₼</strong>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; padding: 15px;">Sifarişi Tamamla</button>
+        </div>
+    </div>
+
     <footer>
-        <p>&copy; 2026 Kitabxana & Bookshopping Sistemi</p>
+        <p>&copy; 2026 BookShop | Crafted with ❤️ for readers</p>
     </footer>
 
     <script src="function.js"></script>
     <script>
-        // Səhifə Yüklənəndə
-        document.addEventListener('DOMContentLoaded', () => {
-            getBooks();
-            updateCartUI();
-        });
+        // UI specific logic for index page
+        const cartToggle = document.getElementById('cart-toggle-btn');
+        const cartPanel = document.getElementById('cart-panel');
+        const closeCart = document.getElementById('close-cart');
 
-        // Səbət Toggle
-        document.getElementById('cart-toggle').onclick = (e) => {
-            e.preventDefault();
-            document.getElementById('cart-section').style.display = 
-                document.getElementById('cart-section').style.display === 'none' ? 'block' : 'none';
-        };
-
-        // Tema Toggle
-        document.getElementById('theme-toggle').onclick = () => {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-        };
-
-        // Axtarış və Filtr
-        document.getElementById('search-input').onkeyup = () => {
-            applyFiltersAndSort();
-        };
-
-        document.getElementById('filter-category').onchange = () => {
-            applyFiltersAndSort();
-        };
-
-        document.getElementById('sort-books').onchange = () => {
-            applyFiltersAndSort();
-        };
-
-        // Bütün Kitabları Sil
-        document.getElementById('clear-all').onclick = () => {
-            if (confirm("Bütün kitabları silmək istədiniz?")) {
-                localStorage.removeItem('books');
-                cart = [];
-                saveCart();
-                refreshUI();
-                updateCartUI();
-                showToast("Bütün kitablar silindi!");
-            }
-        };
+        if (cartToggle) {
+            cartToggle.onclick = () => cartPanel.classList.add('open');
+        }
+        if (closeCart) {
+            closeCart.onclick = () => cartPanel.classList.remove('open');
+        }
     </script>
 </body>
 

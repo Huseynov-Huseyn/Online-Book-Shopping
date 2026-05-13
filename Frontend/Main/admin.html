@@ -1,132 +1,83 @@
 <!DOCTYPE html>
 <html lang="az">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
+    <title>Admin Panel | BookShop</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .admin-table th, .admin-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        .admin-table th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
+        .admin-table tr:hover { background: rgba(255, 255, 255, 0.02); }
+        
+        /* Modal Styles */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: none; }
+        .modal-content { background: var(--bg-card); width: 90%; max-width: 600px; margin: 50px auto; padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border); position: relative; }
+        .modal-close { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+    </style>
 </head>
+
 <body>
     <header>
         <div class="header-container">
-            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                <h1 class="logo">Book<span>Shop</span></h1>
-                <div class="header-actions">
-                    <button class="theme-toggle" id="theme-toggle">🌙</button>
-                </div>
-            </div>
+            <a href="index.html" class="logo">Book<span>Shop</span></a>
             <nav>
                 <ul class="nav-links">
                     <li><a href="index.html">📚 Kataloq</a></li>
-                    <li><a href="addbook.html">➕ Kitab Əlavə Et</a></li>
-                    <li><a href="admin.html">⚙️ Admin</a></li>
+                    <li><a href="addbook.html">➕ Əlavə Et</a></li>
+                    <li><a href="admin.html" class="active">⚙️ Admin</a></li>
                 </ul>
             </nav>
+            <div class="header-actions">
+                <button id="theme-toggle">🌙</button>
+            </div>
         </div>
     </header>
 
-    <main>
-        <!-- Backend Status -->
-        <div class="panel">
-            <h2>🔗 Backend Bağlantısı</h2>
-            <div id="status" class="status disconnected">🔴 Yoxlanılır...</div>
-            <div class="info-box">
-                Backend: <strong>http://localhost:8080/api/books</strong>
-            </div>
-        </div>
-
-        <!-- Admin Dashboard Stats -->
-        <div id="admin-stats" class="panel admin-stats">
+    <main class="container">
+        <div class="stats-grid fade-in" style="margin-bottom: 40px;">
             <div class="stat-card">
-                <div class="stat-icon">📚</div>
-                <div class="stat-content">
-                    <div class="stat-value" id="total-books">0</div>
-                    <div class="stat-label">Cəmi Kitab</div>
-                </div>
+                <i class="fas fa-book" style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px;"></i>
+                <span class="stat-label">Bazada Cəmi Kitab</span>
+                <span class="stat-value" id="total-books">0</span>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-server" style="color: var(--success); font-size: 1.5rem; margin-bottom: 10px;"></i>
+                <span class="stat-label">Sistem Statusu</span>
+                <div id="status" class="status" style="margin: 0; padding: 5px 15px; font-size: 0.8rem;">Yoxlanılır...</div>
             </div>
         </div>
 
-        <!-- Add Book Form -->
-        <div class="panel">
-            <h2>➕ Yeni Kitab Əlavə Et</h2>
-            <form id="admin-book-form" class="admin-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Kitabın Adı *</label>
-                        <input type="text" id="admin-title" placeholder="Kitab adını daxil edin" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Müəllif *</label>
-                        <input type="text" id="admin-author" placeholder="Müəllifin adını daxil edin" required>
-                    </div>
-                </div>
+        <div class="panel fade-in">
+            <div class="section-title">
+                <i class="fas fa-tools" style="color: var(--primary)"></i> Kitabların İdarəedilməsi
+            </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Kateqoriya *</label>
-                        <select id="admin-category" required>
-                            <option value="">Seçin...</option>
-                            <option value="Bədii">🎨 Bədii Ədəbiyyat</option>
-                            <option value="Elmi">🔬 Elmi</option>
-                            <option value="Tarix">📖 Tarix</option>
-                            <option value="Dedektiv">🔍 Dedektiv</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Səhifə Sayı *</label>
-                        <input type="number" id="admin-pages" placeholder="Səhifə sayı" min="1" required>
-                    </div>
+            <div class="controls" style="margin-bottom: 30px;">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="admin-search" placeholder="Axtarış..." onkeyup="adminSearchBooks()">
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Nəşr Ili *</label>
-                        <input type="number" id="admin-year" placeholder="Nəşr ili" min="1900" max="2099" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Qiymət (₼) *</label>
-                        <input type="number" id="admin-price" placeholder="Qiymət" step="0.01" min="0" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label>📸 Kitabın Şəkili *</label>
-                        <input type="file" id="admin-image" accept="image/*" required>
-                        <div id="admin-image-preview" style="display: none; margin-top: 15px;">
-                            <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Şəkil Önizləməsi:</p>
-                            <img id="admin-preview-img" src="" alt="Kitab Şəkili" style="max-width: 120px; max-height: 180px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-                        </div>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" id="btn-add-book" class="btn-success" style="flex: 1;">✅ Kitabı Əlavə Et</button>
-                    <button type="reset" class="btn-secondary" style="flex: 1;">🔄 Formu Təmizlə</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Search & Filter -->
-        <div class="panel">
-            <h2>🔍 Kitabları Yönetim</h2>
-            
-            <div class="search-form">
-                <input type="text" id="admin-search" placeholder="Kitab adı, müəllif, ya kateqoriya axtar...">
-                <select id="admin-category-filter">
+                <select id="admin-category-filter" onchange="adminSearchBooks()">
                     <option value="">Bütün Kateqoriyalar</option>
                     <option value="Bədii">🎨 Bədii</option>
                     <option value="Elmi">🔬 Elmi</option>
                     <option value="Tarix">📖 Tarix</option>
                     <option value="Dedektiv">🔍 Dedektiv</option>
                 </select>
-                <button class="btn-search" onclick="adminSearchBooks()">🔎 Axtar</button>
-                <button class="btn-secondary" onclick="loadAllBooks()">📋 Hamısını Göstər</button>
+                <button class="btn btn-secondary" onclick="loadAdminBooks()">📋 Yenilə</button>
             </div>
 
-            <!-- Books Table -->
-            <div id="admin-books-container" class="admin-table-container">
-                <div class="empty">📚 Kitablar yüklənir...</div>
+            <div id="admin-books-container">
+                <!-- Admin table will be injected here -->
             </div>
         </div>
     </main>
@@ -135,186 +86,165 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeEditModal()">&times;</span>
-            <h2>📝 Kitabı Redaktə Et</h2>
-            <form id="admin-edit-form" class="admin-form">
+            <div class="section-title" style="font-size: 1.5rem;">✏️ Kitabı Redaktə Et</div>
+            
+            <form id="admin-edit-form">
                 <input type="hidden" id="edit-book-id">
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Kitabın Adı *</label>
-                        <input type="text" id="edit-title" placeholder="Kitab adını daxil edin" required>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Kitabın Adı</label>
+                        <input type="text" id="edit-title" required>
                     </div>
-                    <div class="form-group">
-                        <label>Müəllif *</label>
-                        <input type="text" id="edit-author" placeholder="Müəllifin adını daxil edin" required>
+                    <div class="input-group">
+                        <label>Müəllif</label>
+                        <input type="text" id="edit-author" required>
                     </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Kateqoriya *</label>
+                    <div class="input-group">
+                        <label>Kateqoriya</label>
                         <select id="edit-category" required>
-                            <option value="">Seçin...</option>
-                            <option value="Bədii">🎨 Bədii Ədəbiyyat</option>
-                            <option value="Elmi">🔬 Elmi</option>
-                            <option value="Tarix">📖 Tarix</option>
-                            <option value="Dedektiv">🔍 Dedektiv</option>
+                            <option value="Bədii">Bədii</option>
+                            <option value="Elmi">Elmi</option>
+                            <option value="Tarix">Tarix</option>
+                            <option value="Dedektiv">Dedektiv</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Səhifə Sayı *</label>
-                        <input type="number" id="edit-pages" placeholder="Səhifə sayı" min="1" required>
+                    <div class="input-group">
+                        <label>Səhifə</label>
+                        <input type="number" id="edit-pages" required>
+                    </div>
+                    <div class="input-group">
+                        <label>İl</label>
+                        <input type="number" id="edit-year" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Qiymət</label>
+                        <input type="number" id="edit-price" step="0.01" required>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Nəşr Ili *</label>
-                        <input type="number" id="edit-year" placeholder="Nəşr ili" min="1900" max="2099" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Qiymət (₼) *</label>
-                        <input type="number" id="edit-price" placeholder="Qiymət" step="0.01" min="0" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label>📸 Kitabın Şəkili (Ixtiyari)</label>
-                        <input type="file" id="edit-image" accept="image/*">
-                        <div id="edit-image-preview" style="display: none; margin-top: 10px;">
-                            <p style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">Yeni Şəkil Önizləməsi:</p>
-                            <img id="edit-preview-img" src="" alt="Kitab Şəkili" style="max-width: 100px; max-height: 150px; border-radius: 4px;">
-                        </div>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" class="btn-success" style="flex: 1;">✅ Yəniləmələri Saxla</button>
-                    <button type="button" class="btn-secondary" onclick="closeEditModal()" style="flex: 1;">❌ Ləğv Et</button>
+                <div style="margin-top: 25px; display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Yadda Saxla</button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeEditModal()">Ləğv Et</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toast-container"></div>
-
     <footer>
-        <p>&copy; 2026 BookShop İdarə Paneli</p>
+        <p>&copy; 2026 Admin Panel | Premium Management</p>
     </footer>
 
     <script src="function.js"></script>
     <script>
-        // Tema Toggle
-        document.getElementById('theme-toggle').onclick = () => {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-        };
-
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
+        // Additional Admin Logic
+        async function loadAdminBooks() {
+            const container = document.getElementById('admin-books-container');
+            if (!container) return;
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            try {
+                const books = await apiRequest(`${API_URL}/all`);
+                document.getElementById('total-books').textContent = books.length;
+                renderAdminTable(books);
+            } catch (error) {
+                container.innerHTML = '<div class="empty">Xəta baş verdi</div>';
+            }
         }
 
-        // Şəkil Önizləməsini Qur
-        setupImagePreview('admin-image', 'admin-image-preview', 'admin-preview-img');
-        setupImagePreview('edit-image', 'edit-image-preview', 'edit-preview-img');
-
-        // Şəkil Önizləməsini Qur
-        setupImagePreview('admin-image', 'admin-image-preview', 'admin-preview-img');
-
-        // Form Submit
-        document.getElementById('admin-book-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        function renderAdminTable(books) {
+            const container = document.getElementById('admin-books-container');
+            if (!container) return;
             
-            const imageInput = document.getElementById('admin-image');
-            const file = imageInput.files[0];
-            
-            if (!file) {
-                showToast('❌ Zəhmət olmasa kitab şəklini seçin');
+            if (books.length === 0) {
+                container.innerHTML = '<div class="empty">📚 Heç bir kitab tapılmadı</div>';
                 return;
             }
 
-            try {
-                const bookData = {
-                    title: document.getElementById('admin-title').value,
-                    author: document.getElementById('admin-author').value,
-                    category: document.getElementById('admin-category').value,
-                    pages: parseInt(document.getElementById('admin-pages').value),
-                    year: parseInt(document.getElementById('admin-year').value),
-                    price: parseFloat(document.getElementById('admin-price').value)
-                };
+            container.innerHTML = `
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Şəkil</th>
+                            <th>Kitab</th>
+                            <th>Müəllif</th>
+                            <th>Kateqoriya</th>
+                            <th>Qiymət</th>
+                            <th>Əməliyyat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${books.map(book => `
+                            <tr>
+                                <td><img src="${getImageUrl(book.imageUrl)}" style="width: 40px; border-radius: 4px;" onerror="handleImageError(this)"></td>
+                                <td><strong>${escapeHtml(book.title)}</strong></td>
+                                <td>${escapeHtml(book.author)}</td>
+                                <td><span class="badge">${book.category}</span></td>
+                                <td>${book.price.toFixed(2)} ₼</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick='openEditModal(${JSON.stringify(book)})'>✏️</button>
+                                    <button class="btn btn-secondary" style="color: var(--danger)" onclick="deleteAdminBook('${book.id}')">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
 
-                // Kitabı yaradın və şəkili yüklə
-                const result = await submitBookForm(bookData, file);
-                showToast(result.message);
-                
-                if (result.success) {
-                    document.getElementById('admin-book-form').reset();
-                    document.getElementById('admin-image-preview').style.display = 'none';
-                    loadAllBooks();
+        async function adminSearchBooks() {
+            const search = document.getElementById('admin-search').value.toLowerCase();
+            const category = document.getElementById('admin-category-filter').value;
+            
+            try {
+                const allBooks = await apiRequest(`${API_URL}/all`);
+                const filtered = allBooks.filter(book => {
+                    const matchesSearch = book.title.toLowerCase().includes(search) || book.author.toLowerCase().includes(search);
+                    const matchesCategory = !category || book.category === category;
+                    return matchesSearch && matchesCategory;
+                });
+                renderAdminTable(filtered);
+            } catch (error) {
+                console.error('Search failed', error);
+            }
+        }
+
+        async function deleteAdminBook(id) {
+            if (!confirm('Silmək istədiyinizdən əminsiniz?')) return;
+            try {
+                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showToast('Kitab silindi', 'success');
+                    loadAdminBooks();
                 }
             } catch (error) {
-                showToast('❌ Kitab əlavə etmə xətası');
-                console.error(error);
+                showToast('Xəta baş verdi', 'danger');
             }
-        });
+        }
 
-        // Edit Form Submit
         document.getElementById('admin-edit-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const id = document.getElementById('edit-book-id').value;
+            const data = {
+                title: document.getElementById('edit-title').value,
+                author: document.getElementById('edit-author').value,
+                category: document.getElementById('edit-category').value,
+                pages: parseInt(document.getElementById('edit-pages').value),
+                year: parseInt(document.getElementById('edit-year').value),
+                price: parseFloat(document.getElementById('edit-price').value)
+            };
             
-            const bookId = document.getElementById('edit-book-id').value;
-            const imageInput = document.getElementById('edit-image');
-            let uploadImageResult = { success: true };
-
-            try {
-                const bookData = {
-                    title: document.getElementById('edit-title').value,
-                    author: document.getElementById('edit-author').value,
-                    category: document.getElementById('edit-category').value,
-                    pages: parseInt(document.getElementById('edit-pages').value),
-                    year: parseInt(document.getElementById('edit-year').value),
-                    price: parseFloat(document.getElementById('edit-price').value)
-                };
-
-                // Kitabı yəniləyin
-                const result = await updateAdminBook(bookId, bookData);
-                showToast(result.message);
-                
-                // Əgər yeni şəkil seçilirsə, onu yüklə
-                if (result.success && imageInput && imageInput.files.length > 0) {
-                    const file = imageInput.files[0];
-                    uploadImageResult = await uploadImageToBackend(bookId, file);
-                    if (!uploadImageResult.success) {
-                        showToast('⚠️ Şəkil yükləmə xətası, amma kitab yənilədi');
-                    }
-                }
-                
-                if (result.success) {
-                    closeEditModal();
-                    loadAllBooks();
-                }
-            } catch (error) {
-                showToast('❌ Kitab yəniləmə xətası');
-                console.error(error);
+            const result = await updateAdminBook(id, data);
+            if (result.success) {
+                closeEditModal();
+                loadAdminBooks();
             }
         });
 
-        // Search on input
-        document.getElementById('admin-search').addEventListener('keyup', () => {
-            adminSearchBooks();
-        });
-
-        document.getElementById('admin-category-filter').addEventListener('change', () => {
-            adminSearchBooks();
-        });
-
-        // Page Load
-        document.addEventListener('DOMContentLoaded', () => {
-            checkConnection();
-            loadAllBooks();
-        });
+        // Re-run init if needed or just call loadAdminBooks
+        window.onload = () => {
+            if (typeof loadAdminBooks === 'function') loadAdminBooks();
+        };
     </script>
 </body>
+
 </html>
