@@ -785,3 +785,151 @@ input:focus, select:focus {
     background: var(--primary);
     color: white;
 }
+
+/* ===== AUTH ANIMATION OVERLAYS ===== */
+.auth-anim-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(15px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-anim-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.auth-anim-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 40px 60px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.25);
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.auth-anim-overlay.active .auth-anim-card {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.auth-anim-icon {
+    font-size: 4.5rem;
+    margin-bottom: 20px;
+    display: inline-block;
+    position: relative;
+}
+
+.auth-anim-icon.login-success {
+    color: var(--success);
+    text-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+    animation: bounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.auth-anim-icon.logout-success {
+    color: var(--primary);
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    animation: rotateOut 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.auth-anim-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    background: linear-gradient(to right, var(--text-main), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.auth-anim-subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.auth-anim-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    animation: pulseBadge 2s infinite;
+}
+
+/* Sparkles / Particles */
+.sparkles {
+    position: absolute;
+    inset: -20px;
+    pointer-events: none;
+}
+
+.sparkles span {
+    position: absolute;
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    opacity: 0;
+}
+
+.auth-anim-overlay.active .sparkles span:nth-child(1) {
+    top: 20%; left: 20%; background: var(--secondary);
+    --x: -60px; --y: -60px;
+    animation: sparkle-fly 1.2s 0.1s ease-out forwards;
+}
+.auth-anim-overlay.active .sparkles span:nth-child(2) {
+    top: 20%; right: 20%; background: var(--success);
+    --x: 60px; --y: -60px;
+    animation: sparkle-fly 1.2s 0.15s ease-out forwards;
+}
+.auth-anim-overlay.active .sparkles span:nth-child(3) {
+    bottom: 20%; left: 20%; background: var(--warning);
+    --x: -60px; --y: 60px;
+    animation: sparkle-fly 1.2s 0.2s ease-out forwards;
+}
+.auth-anim-overlay.active .sparkles span:nth-child(4) {
+    bottom: 20%; right: 20%; background: var(--primary);
+    --x: 60px; --y: 60px;
+    animation: sparkle-fly 1.2s 0.25s ease-out forwards;
+}
+
+/* Animations Keyframes */
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.1); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes rotateOut {
+    0% { transform: scale(0.3) rotate(-180deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@keyframes sparkle-fly {
+    0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(var(--x), var(--y)) scale(1.6); opacity: 0; }
+}
+
+@keyframes pulseBadge {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.2); }
+    50% { transform: scale(1.05); box-shadow: 0 0 12px 6px rgba(99, 102, 241, 0); }
+}

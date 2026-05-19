@@ -513,6 +513,63 @@ window.switchAuthTab = (tab) => {
     }
 };
 
+function showAuthAnimation(type, username, role) {
+    const existing = document.getElementById('auth-animation-overlay');
+    if (existing) existing.remove();
+    
+    let html = '';
+    if (type === 'login') {
+        html = `
+        <div id="auth-animation-overlay" class="auth-anim-overlay">
+            <div class="auth-anim-card">
+                <div class="auth-anim-icon login-success">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="sparkles">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+                <div class="auth-anim-title">Xoş Gəldiniz!</div>
+                <div class="auth-anim-subtitle">@${escapeHtml(username)}</div>
+                <div class="auth-anim-badge">${getFriendlyRole(role)}</div>
+            </div>
+        </div>
+        `;
+    } else {
+        html = `
+        <div id="auth-animation-overlay" class="auth-anim-overlay">
+            <div class="auth-anim-card">
+                <div class="auth-anim-icon logout-success">
+                    <i class="fas fa-door-open"></i>
+                    <div class="sparkles">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+                <div class="auth-anim-title">Görüşənədək!</div>
+                <div class="auth-anim-subtitle">Sessiyanız uğurla sonlandırıldı.</div>
+                <div class="auth-anim-badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">Çıxış Edildi</div>
+            </div>
+        </div>
+        `;
+    }
+    
+    document.body.insertAdjacentHTML('beforeend', html);
+    const overlay = document.getElementById('auth-animation-overlay');
+    
+    // Trigger reflow to start transition
+    overlay.offsetHeight;
+    overlay.classList.add('active');
+    
+    return new Promise(resolve => {
+        setTimeout(() => {
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.remove();
+                resolve();
+            }, 500);
+        }, 2200);
+    });
+}
+
 window.handleLoginSubmit = async (e) => {
     e.preventDefault();
     const username = document.getElementById('login-username').value;
@@ -532,11 +589,13 @@ window.handleLoginSubmit = async (e) => {
         }
         
         const data = await response.json();
-        saveUserSession(data.token, data.username, data.role);
         closeAuthModal();
-        showToast('✅ Giriş uğurludur! Xoş gəldiniz, ' + data.username, 'success');
         
-        // Reload admin / addbook page if they login from home, or keep them there
+        // Play login success animation
+        await showAuthAnimation('login', data.username, data.role);
+        
+        saveUserSession(data.token, data.username, data.role);
+        
         const path = window.location.pathname;
         if (path.includes('admin.html') || path.includes('addbook.html')) {
             window.location.reload();
@@ -567,9 +626,12 @@ window.handleRegisterSubmit = async (e) => {
         }
         
         const data = await response.json();
-        saveUserSession(data.token, data.username, data.role);
         closeAuthModal();
-        showToast('✅ Qeydiyyat uğurludur! Rolunuz: ' + getFriendlyRole(data.role), 'success');
+        
+        // Play login success animation
+        await showAuthAnimation('login', data.username, data.role);
+        
+        saveUserSession(data.token, data.username, data.role);
         
         const path = window.location.pathname;
         if (path.includes('admin.html') || path.includes('addbook.html')) {
@@ -616,10 +678,13 @@ function updateHeaderAuthUI() {
     actionsContainer.insertBefore(authDiv, actionsContainer.firstChild);
 }
 
-window.logoutUser = () => {
+window.logoutUser = async () => {
+    // Play logout animation first
+    await showAuthAnimation('logout');
+    
     clearUserSession();
     showToast('🚪 Hesabdan çıxış edildi', 'info');
-    // Redirect to index page
+    
     const path = window.location.pathname;
     if (!path.includes('index.html') && path !== '/' && !path.endsWith('Main/') && !path.endsWith('Main')) {
         window.location.href = 'index.html';
