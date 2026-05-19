@@ -5,6 +5,7 @@ import com.example.aztustaj.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,7 +77,7 @@ public class BookServiceImpl implements BookService {
             existingBook.setCategory(book.getCategory() != null ? book.getCategory() : existingBook.getCategory());
             existingBook.setPages(book.getPages() > 0 ? book.getPages() : existingBook.getPages());
             existingBook.setYear(book.getYear() > 0 ? book.getYear() : existingBook.getYear());
-            existingBook.setPrice(book.getPrice() > 0 ? book.getPrice() : existingBook.getPrice());
+            existingBook.setPrice(book.getPrice() != null && book.getPrice().signum() > 0 ? book.getPrice() : existingBook.getPrice());
             return bookRepository.save(existingBook);
         }
         return null;
@@ -85,19 +86,33 @@ public class BookServiceImpl implements BookService {
     private List<Book> applySorting(List<Book> books, String sort) {
         try {
             if (sort.contains("pages-asc")) {
-                return books.stream().sorted((a, b) -> Integer.compare(a.getPages(), b.getPages())).collect(Collectors.toList());
+                return books.stream()
+                        .sorted(Comparator.comparingInt(Book::getPages))
+                        .collect(Collectors.toList());
             } else if (sort.contains("pages-desc")) {
-                return books.stream().sorted((a, b) -> Integer.compare(b.getPages(), a.getPages())).collect(Collectors.toList());
+                return books.stream()
+                        .sorted(Comparator.comparingInt(Book::getPages).reversed())
+                        .collect(Collectors.toList());
             } else if (sort.contains("title-az")) {
-                return books.stream().sorted((a, b) -> a.getTitle().compareTo(b.getTitle())).collect(Collectors.toList());
+                return books.stream()
+                        .sorted(Comparator.comparing(Book::getTitle))
+                        .collect(Collectors.toList());
             } else if (sort.contains("price-asc")) {
-                return books.stream().sorted((a, b) -> Double.compare(a.getPrice(), b.getPrice())).collect(Collectors.toList());
+                return books.stream()
+                        .sorted(Comparator.comparing(Book::getPrice))
+                        .collect(Collectors.toList());
             } else if (sort.contains("price-desc")) {
-                return books.stream().sorted((a, b) -> Double.compare(b.getPrice(), a.getPrice())).collect(Collectors.toList());
+                return books.stream()
+                        .sorted(Comparator.comparing(Book::getPrice).reversed())
+                        .collect(Collectors.toList());
             } else if (sort.contains("year-asc")) {
-                return books.stream().sorted((a, b) -> Integer.compare(a.getYear(), b.getYear())).collect(Collectors.toList());
+                return books.stream()
+                        .sorted(Comparator.comparingInt(Book::getYear))
+                        .collect(Collectors.toList());
             } else if (sort.contains("year-desc")) {
-                return books.stream().sorted((a, b) -> Integer.compare(b.getYear(), a.getYear())).collect(Collectors.toList());
+                return books.stream()
+                        .sorted(Comparator.comparingInt(Book::getYear).reversed())
+                        .collect(Collectors.toList());
             }
         } catch (Exception e) {
             System.err.println("Sıralama xətası: " + e.getMessage());

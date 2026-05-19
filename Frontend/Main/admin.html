@@ -59,6 +59,7 @@
         <div class="admin-tabs fade-in" style="margin-bottom: 20px;">
             <button class="admin-tab-btn active" id="tab-books" onclick="switchAdminTab('books')">📚 Kitablar</button>
             <button class="admin-tab-btn" id="tab-users" onclick="switchAdminTab('users')">👥 İstifadəçilər</button>
+            <button class="admin-tab-btn" id="tab-orders" onclick="switchAdminTab('orders')">📦 Sifarişlər</button>
         </div>
 
         <div class="panel fade-in" id="books-panel">
@@ -93,6 +94,16 @@
 
             <div id="admin-users-container">
                 <!-- Admin users table will be injected here -->
+            </div>
+        </div>
+
+        <div class="panel fade-in" id="orders-panel" style="display: none;">
+            <div class="section-title">
+                <i class="fas fa-box-open" style="color: var(--primary)"></i> Sifarişlərin İdarəedilməsi
+            </div>
+
+            <div id="admin-orders-container">
+                <!-- Admin orders table will be injected here -->
             </div>
         </div>
     </main>
@@ -184,6 +195,7 @@
             
             try {
                 const books = await apiRequest(`${API_URL}/all`);
+                window.adminBooks = books; // Store globally
                 document.getElementById('total-books').textContent = books.length;
                 renderAdminTable(books);
             } catch (error) {
@@ -221,7 +233,7 @@
                                 <td><span class="badge">${book.category}</span></td>
                                 <td>${book.price.toFixed(2)} ₼</td>
                                 <td>
-                                    <button class="btn btn-secondary" onclick='openEditModal(${JSON.stringify(book)})'>✏️</button>
+                                    <button class="btn btn-secondary" onclick="openEditModalById('${book.id}')">✏️</button>
                                     <button class="btn btn-secondary" style="color: var(--danger)" onclick="deleteAdminBook('${book.id}')">🗑️</button>
                                 </td>
                             </tr>
@@ -231,12 +243,22 @@
             `;
         }
 
+        window.openEditModalById = (id) => {
+            if (window.adminBooks) {
+                const book = window.adminBooks.find(b => b.id == id);
+                if (book) {
+                    openEditModal(book);
+                }
+            }
+        };
+
         async function adminSearchBooks() {
             const search = document.getElementById('admin-search').value.toLowerCase();
             const category = document.getElementById('admin-category-filter').value;
             
             try {
                 const allBooks = await apiRequest(`${API_URL}/all`);
+                window.adminBooks = allBooks; // Update global array
                 const filtered = allBooks.filter(book => {
                     const matchesSearch = book.title.toLowerCase().includes(search) || book.author.toLowerCase().includes(search);
                     const matchesCategory = !category || book.category === category;
@@ -282,21 +304,141 @@
         function switchAdminTab(tab) {
             const booksPanel = document.getElementById('books-panel');
             const usersPanel = document.getElementById('users-panel');
+            const ordersPanel = document.getElementById('orders-panel');
             const tabBooks = document.getElementById('tab-books');
             const tabUsers = document.getElementById('tab-users');
+            const tabOrders = document.getElementById('tab-orders');
 
             if (tab === 'books') {
                 booksPanel.style.display = 'block';
                 usersPanel.style.display = 'none';
+                ordersPanel.style.display = 'none';
                 tabBooks.classList.add('active');
                 tabUsers.classList.remove('active');
+                tabOrders.classList.remove('active');
                 loadAdminBooks();
-            } else {
+            } else if (tab === 'users') {
                 booksPanel.style.display = 'none';
                 usersPanel.style.display = 'block';
+                ordersPanel.style.display = 'none';
                 tabBooks.classList.remove('active');
                 tabUsers.classList.add('active');
+                tabOrders.classList.remove('active');
                 loadAdminUsers();
+            } else {
+                booksPanel.style.display = 'none';
+                usersPanel.style.display = 'none';
+                ordersPanel.style.display = 'block';
+                tabBooks.classList.remove('active');
+                tabUsers.classList.remove('active');
+                tabOrders.classList.add('active');
+                loadAdminOrders();
+            }
+        }
+
+        async function loadAdminOrders() {
+            const container = document.getElementById('admin-orders-container');
+            if (!container) return;
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            try {
+                const orders = await apiRequest(`${API_BASE_URL}/api/orders`);
+                const users = await apiRequest(`${API_BASE_URL}/api/users`);
+                const books = await apiRequest(`${API_URL}/all`);
+                
+                renderOrdersTable(orders, users, books);
+            } catch (error) {
+                container.innerHTML = '<div class="empty">Sifarişləri yükləmək mümkün olmadı</div>';
+            }
+        }
+
+        function renderOrdersTable(orders, users, books) {
+            const container = document.getElementById('admin-orders-container');
+            if (!container) return;
+            
+            if (!orders || orders.length === 0) {
+                container.innerHTML = '<div class="empty">📦 Heç bir sifariş tapılmadı</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Sifariş ID</th>
+                            <th>Müştəri</th>
+                            <th>Kitablar</th>
+                            <th>Məbləğ</th>
+                            <th>Status</th>
+                            <th>Tarix</th>
+                            <th>Əməliyyatlar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${orders.map(order => {
+                            const user = users.find(u => u.id == order.userId);
+                            const username = user ? user.username : `İstifadəçi #${order.userId}`;
+                            const orderBooks = order.bookIds.map(bId => {
+                                const bk = books.find(b => b.id == bId);
+                                return bk ? bk.title : `Kitab #${bId}`;
+                            }).join(', ');
+                            const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleString('az-AZ') : 'Bilinmir';
+                            
+                            let statusBadgeColor = 'background: rgba(245, 158, 11, 0.1); color: var(--warning);';
+                            let statusText = 'Gözləyir';
+                            if (order.status === 'COMPLETED') {
+                                statusBadgeColor = 'background: rgba(34, 197, 94, 0.1); color: var(--success);';
+                                statusText = 'Tamamlandı';
+                            } else if (order.status === 'CANCELLED') {
+                                statusBadgeColor = 'background: rgba(239, 68, 68, 0.1); color: var(--danger);';
+                                statusText = 'Ləğv edildi';
+                            }
+                            
+                            return `
+                                <tr>
+                                    <td><code>#${order.id}</code></td>
+                                    <td><strong>@${escapeHtml(username)}</strong></td>
+                                    <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(orderBooks)}">${escapeHtml(orderBooks)}</td>
+                                    <td><strong>${order.totalPrice.toFixed(2)} ₼</strong></td>
+                                    <td><span class="badge" style="${statusBadgeColor}">${statusText}</span></td>
+                                    <td><span style="font-size: 0.85rem; color: var(--text-muted);">${orderDate}</span></td>
+                                    <td>
+                                        <div style="display: flex; gap: 5px;">
+                                            <button class="btn btn-secondary" style="color: var(--success); padding: 5px 10px;" onclick="updateOrderStatusAction(${order.id}, 'COMPLETED')">✓</button>
+                                            <button class="btn btn-secondary" style="color: var(--warning); padding: 5px 10px;" onclick="updateOrderStatusAction(${order.id}, 'CANCELLED')">✕</button>
+                                            <button class="btn btn-secondary" style="color: var(--danger); padding: 5px 10px;" onclick="deleteOrderAction(${order.id})"><i class="fas fa-trash-alt"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function updateOrderStatusAction(orderId, status) {
+            try {
+                await apiRequest(`${API_BASE_URL}/api/orders/${orderId}/status?status=${status}`, {
+                    method: 'PUT'
+                });
+                showToast(`Sifariş statusu yeniləndi: ${status}`, 'success');
+                loadAdminOrders();
+            } catch (error) {
+                showToast('Status yenilənərkən xəta baş verdi', 'danger');
+            }
+        }
+
+        async function deleteOrderAction(orderId) {
+            if (!confirm('Sifarişi silmək istədiyinizdən əminsiniz?')) return;
+            try {
+                await apiRequest(`${API_BASE_URL}/api/orders/${orderId}`, {
+                    method: 'DELETE'
+                });
+                showToast('Sifariş silindi', 'success');
+                loadAdminOrders();
+            } catch (error) {
+                showToast('Sifariş silinərkən xəta baş verdi', 'danger');
             }
         }
 

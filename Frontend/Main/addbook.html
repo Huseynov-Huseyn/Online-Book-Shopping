@@ -56,10 +56,10 @@
                     <div class="input-group">
                         <label for="category-select">Kateqoriya *</label>
                         <select id="category-select" required>
-                            <option value="Detective" selected>🔍 Dedektiv</option>
-                            <option value="Fiction">🎨 Bədii</option>
-                            <option value="Science">🔬 Elmi</option>
-                            <option value="History">📖 Tarix</option>
+                            <option value="Dedektiv" selected>🔍 Dedektiv</option>
+                            <option value="Bədii">🎨 Bədii</option>
+                            <option value="Elmi">🔬 Elmi</option>
+                            <option value="Tarix">📖 Tarix</option>
                         </select>
                     </div>
                     <div class="input-group">
@@ -76,15 +76,19 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 30px; padding: 30px; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 2px dashed var(--border);">
-                    <label for="book-image" style="display: block; font-weight: 600; margin-bottom: 15px; cursor: pointer;">
+                <div
+                    style="margin-top: 30px; padding: 30px; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 2px dashed var(--border);">
+                    <label for="book-image"
+                        style="display: block; font-weight: 600; margin-bottom: 15px; cursor: pointer;">
                         <i class="fas fa-cloud-upload-alt" style="margin-right: 10px;"></i> Kitabın Üz Qabığı *
                     </label>
                     <input type="file" id="book-image" accept="image/*" required style="width: 100%;">
-                    
+
                     <div id="image-preview" style="display: none; margin-top: 20px; text-align: center;">
                         <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Seçilmiş Şəkil:</p>
-                        <img id="preview-img" src="" alt="Önizləmə" style="max-width: 200px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg);" onerror="handleImageError(this)">
+                        <img id="preview-img" src="" alt="Önizləmə"
+                            style="max-width: 200px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg);"
+                            onerror="handleImageError(this)">
                     </div>
                 </div>
 
@@ -140,7 +144,7 @@
             e.preventDefault();
             const imageInput = document.getElementById('book-image');
             const file = imageInput.files[0];
-            
+
             if (!file) return showToast('❌ Şəkil seçilməyib', 'danger');
 
             const bookData = {

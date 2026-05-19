@@ -97,8 +97,10 @@ function createToastContainer() {
 function applyTheme() {
     if (state.theme === 'dark') {
         document.body.classList.add('dark-mode');
+        document.documentElement.setAttribute('data-theme', 'dark');
     } else {
         document.body.classList.remove('dark-mode');
+        document.documentElement.setAttribute('data-theme', 'light');
     }
     
     const themeBtn = document.getElementById('theme-toggle');
@@ -223,7 +225,9 @@ function createBookCard(book) {
     div.style.cursor = 'pointer';
     div.onclick = (e) => {
         if (!e.target.closest('.btn-add-cart')) {
-            openBookDetails(book.id);
+            if (typeof window.openBookDetails === 'function') {
+                window.openBookDetails(book.id);
+            }
         }
     };
     
@@ -234,7 +238,7 @@ function createBookCard(book) {
         <div class="book-image-container">
             <img src="${bookImage}" alt="${escapeHtml(book.title)}" class="book-image" onerror="handleImageError(this)">
             <div class="book-overlay">
-                <button class="btn btn-primary btn-add-cart" onclick='event.stopPropagation(); addToCart(${JSON.stringify(book)})'>
+                <button class="btn btn-primary btn-add-cart">
                     <i class="fas fa-shopping-cart"></i> Səbətə at
                 </button>
             </div>
@@ -253,6 +257,15 @@ function createBookCard(book) {
             </div>
         </div>
     `;
+
+    const cartBtn = div.querySelector('.btn-add-cart');
+    if (cartBtn) {
+        cartBtn.onclick = (e) => {
+            e.stopPropagation();
+            addToCart(book);
+        };
+    }
+
     return div;
 }
 
@@ -310,9 +323,59 @@ function updateCartUI() {
 }
 
 window.removeFromCart = (id) => {
-    state.cart = state.cart.filter(item => item.id !== id);
+    state.cart = state.cart.filter(item => item.id != id);
     saveCart();
     updateCartUI();
+};
+
+window.checkoutOrder = async () => {
+    if (!state.user) {
+        showToast('⚠️ Sifariş vermək üçün lütfən daxil olun!', 'warning');
+        window.openAuthModal();
+        return;
+    }
+    
+    if (state.cart.length === 0) {
+        showToast('🛒 Səbətiniz boşdur!', 'warning');
+        return;
+    }
+    
+    const userId = state.user.id;
+    if (!userId) {
+        showToast('❌ İstifadəçi məlumatı tam deyil. Lütfən yenidən daxil olun.', 'danger');
+        return;
+    }
+    
+    const bookIds = state.cart.map(item => item.id.toString());
+    
+    try {
+        const orderRequestData = {
+            userId: userId,
+            bookIds: bookIds
+        };
+        
+        const responseData = await apiRequest(`${API_BASE_URL}/api/orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderRequestData)
+        });
+        
+        if (responseData && responseData.id) {
+            showToast('🎉 Sifarişiniz uğurla qəbul edildi!', 'success');
+            state.cart = [];
+            saveCart();
+            updateCartUI();
+            
+            // Close cart panel if open
+            const cartPanel = document.getElementById('cart-panel');
+            if (cartPanel) cartPanel.classList.remove('open');
+        } else {
+            showToast('❌ Sifariş yerləşdirilərkən xəta baş verdi', 'danger');
+        }
+    } catch (error) {
+        console.error('Order creation error:', error);
+        showToast('❌ Sifariş yerləşdirilərkən xəta baş verdi', 'danger');
+    }
 };
 
 // ===== SEARCH & FILTERS =====
@@ -454,8 +517,8 @@ window.updateAdminBook = async (id, data) => {
 
 // ===== AUTHENTICATION & SECURITY SYSTEM =====
 
-function saveUserSession(token, username, role) {
-    state.user = { token, username, role };
+function saveUserSession(token, username, role, id) {
+    state.user = { token, username, role, id };
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(state.user));
     updateHeaderAuthUI();
@@ -641,7 +704,7 @@ window.handleLoginSubmit = async (e) => {
         // Play login success animation
         await showAuthAnimation('login', data.username, data.role);
         
-        saveUserSession(data.token, data.username, data.role);
+        saveUserSession(data.token, data.username, data.role, data.id);
         
         const path = window.location.pathname;
         if (path.includes('admin.html') || path.includes('addbook.html')) {
@@ -678,7 +741,7 @@ window.handleRegisterSubmit = async (e) => {
         // Play login success animation
         await showAuthAnimation('login', data.username, data.role);
         
-        saveUserSession(data.token, data.username, data.role);
+        saveUserSession(data.token, data.username, data.role, data.id);
         
         const path = window.location.pathname;
         if (path.includes('admin.html') || path.includes('addbook.html')) {

@@ -3,6 +3,7 @@ package com.example.aztustaj.controller;
 import com.example.aztustaj.dto.OrderRequest;
 import com.example.aztustaj.dto.OrderResponse;
 import com.example.aztustaj.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class OrderController {
 
     private final OrderService orderService;
 
     // Yeni sifariş yarat
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
         try {
             OrderResponse order = orderService.createOrder(orderRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(order);

@@ -6,6 +6,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "books")
 @Getter
@@ -34,8 +36,9 @@ public class Book {
     @Column(name = "year", nullable = false)
     private int year;
 
-    @Column(name = "price", nullable = false)
-    private double price;
+    @Column(name = "price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
+
     @Column(name = "image_url", length = 500)
-    private String imageUrl;  // Məsələn: "/images/book-123.jpg"
+    private String imageUrl;
 }

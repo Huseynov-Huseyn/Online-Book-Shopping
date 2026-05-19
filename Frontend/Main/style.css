@@ -1195,7 +1195,7 @@ input:focus, select:focus {
     padding: 8px 12px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    background: var(--bg-main);
+    background: var(--input-bg);
     color: var(--text-main);
 }
 
@@ -1204,7 +1204,7 @@ input:focus, select:focus {
     padding: 8px 12px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    background: var(--bg-main);
+    background: var(--input-bg);
     color: var(--text-main);
 }
 

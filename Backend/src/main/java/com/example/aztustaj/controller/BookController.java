@@ -18,7 +18,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class BookController {
 
     private final BookService bookService;
@@ -129,9 +128,9 @@ public class BookController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("error", "Kateqoriya boş ola bilməz"));
             }
-            if (book.getPrice() < 0) {
+            if (book.getPrice() == null || book.getPrice().signum() < 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("error", "Qiymət mənfi ola bilməz"));
+                        .body(Map.of("error", "Qiymət mənfi və ya boş ola bilməz"));
             }
 
             Book savedBook = bookService.saveBook(book);

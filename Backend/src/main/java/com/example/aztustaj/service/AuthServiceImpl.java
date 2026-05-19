@@ -29,16 +29,10 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Bu username artıq istifadə olunur");
         }
 
-        Role role = request.getRole();
-
-        if (role == Role.ROLE_ADMIN) {
-            throw new IllegalArgumentException("Admin qeydiyyatı açıq deyil");
-        }
-
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(role)
+                .role(Role.ROLE_USER)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -51,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(token, savedUser.getUsername(), savedUser.getRole().name());
+        return new AuthResponse(token, savedUser.getUsername(), savedUser.getRole().name(), savedUser.getId());
     }
 
     @Override
@@ -74,6 +68,6 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtService.generateToken(userDetails);
 
-        return new AuthResponse(token, user.getUsername(), user.getRole().name());
+        return new AuthResponse(token, user.getUsername(), user.getRole().name(), user.getId());
     }
 }

@@ -3,6 +3,7 @@ package com.example.aztustaj.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,20 +23,20 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "order_books",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
+    @OneToMany(
+            mappedBy = "order",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
     )
-    private List<Book> books;
+    private List<OrderItem> items;
 
-    @Column(nullable = false)
-    private double totalPrice;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus status; // PENDING, COMPLETED, CANCELLED
+    private OrderStatus status;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

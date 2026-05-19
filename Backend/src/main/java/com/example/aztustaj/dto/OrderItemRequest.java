@@ -1,15 +1,16 @@
 package com.example.aztustaj.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterRequest {
+public class OrderItemRequest {
     @NotBlank
-    private String username;
+    private String bookId;
 
-    @NotBlank
-    private String password;
+    @Min(1)
+    private int quantity = 1;
 }

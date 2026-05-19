@@ -3,6 +3,7 @@ package com.example.aztustaj.dto;
 import com.example.aztustaj.entity.OrderStatus;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,8 +15,8 @@ import java.util.List;
 public class OrderResponse {
     private Long id;
     private Long userId;
-    private List<String> bookIds;
-    private double totalPrice;
+    private List<OrderItemResponse> items;
+    private BigDecimal totalPrice;
     private OrderStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
