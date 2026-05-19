@@ -1,31 +1,50 @@
 package com.example.aztustaj.controller;
 
+import com.example.aztustaj.dto.UserResponse;
 import com.example.aztustaj.entity.User;
 import com.example.aztustaj.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
-        User savedUser = userService.register(user);
-        return ResponseEntity.ok(savedUser);
+    @GetMapping
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        List<UserResponse> users = userService.findAll()
+                .stream()
+                .map(user -> new UserResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getRole().name()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<User> getByUsername(@PathVariable String username) {
+    public ResponseEntity<UserResponse> getByUsername(@PathVariable String username) {
         User user = userService.findByUsername(username);
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        } else {
+
+        if (user == null) {
             return ResponseEntity.notFound().build();
         }
+
+        return ResponseEntity.ok(
+                new UserResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getRole().name()
+                )
+        );
     }
 }

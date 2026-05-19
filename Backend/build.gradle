@@ -19,41 +19,27 @@ repositories {
 }
 
 dependencies {
-    // 🌐 REST API (Controller)
     implementation 'org.springframework.boot:spring-boot-starter-web'
-// 📖 Swagger/OpenAPI (Spring Boot 3 üçün)
+
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
-    // 🗄️ Database + JPA
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    // 🐬 MySQL Driver
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    implementation 'org.springframework.security:spring-security-crypto'
+
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    // 🔐 Lombok (getter/setter üçün)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // 🔄 Validation (məs: @NotNull və s.)
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    dependencies {
-        // Mövcud dependencies...
-
-        // Spring Security (User sistemi üçün)
-        implementation 'org.springframework.boot:spring-boot-starter-security'
-
-        // Password encoding üçün (BCrypt)
-        implementation 'org.springframework.security:spring-security-crypto'
-
-        // JPA/Hibernate (Database üçün)
-        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-        // Lombok (Getter/Setter-ləri avtomatyalaşdırmaq ��çün - isteğe bağlı)
-        compileOnly 'org.projectlombok:lombok'
-        annotationProcessor 'org.projectlombok:lombok'
-
-        // Digər mövcud dependencies...
-    }
-    // 🧪 Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
