@@ -150,8 +150,39 @@ async function loadBooks() {
         renderBooks(state.books);
         const totalCount = document.getElementById('total-count');
         if (totalCount) totalCount.textContent = state.books.length;
+        selectRandomSpotlightBook();
     } catch (error) {
         showToast('❌ Kitabları yükləmək mümkün olmadı', 'danger');
+    }
+}
+
+function selectRandomSpotlightBook() {
+    const spotlightCard = document.getElementById('spotlight-book-card');
+    if (!spotlightCard) return;
+    
+    if (state.books && state.books.length > 0) {
+        const randomIndex = Math.floor(Math.random() * state.books.length);
+        const book = state.books[randomIndex];
+        
+        const img = document.getElementById('spotlight-img');
+        const title = document.getElementById('spotlight-title');
+        const author = document.getElementById('spotlight-author');
+        const price = document.getElementById('spotlight-price');
+        
+        if (img) img.src = getImageUrl(book.imageUrl);
+        if (title) title.textContent = book.title;
+        if (author) author.textContent = book.author;
+        if (price) price.textContent = `${book.price.toFixed(2)} ₼`;
+        
+        spotlightCard.style.display = 'block';
+        
+        spotlightCard.onclick = () => {
+            if (window.openBookDetails) {
+                window.openBookDetails(book.id);
+            }
+        };
+    } else {
+        spotlightCard.style.display = 'none';
     }
 }
 
@@ -189,6 +220,13 @@ function renderBooks(books) {
 function createBookCard(book) {
     const div = document.createElement('div');
     div.className = 'book-card fade-in';
+    div.style.cursor = 'pointer';
+    div.onclick = (e) => {
+        if (!e.target.closest('.btn-add-cart')) {
+            openBookDetails(book.id);
+        }
+    };
+    
     const bookImage = getImageUrl(book.imageUrl);
     const price = book.price ? book.price.toFixed(2) : "0.00";
 
@@ -196,7 +234,9 @@ function createBookCard(book) {
         <div class="book-image-container">
             <img src="${bookImage}" alt="${escapeHtml(book.title)}" class="book-image" onerror="handleImageError(this)">
             <div class="book-overlay">
-                <button class="btn btn-primary" onclick='addToCart(${JSON.stringify(book)})'>🛒 Səbətə at</button>
+                <button class="btn btn-primary btn-add-cart" onclick='event.stopPropagation(); addToCart(${JSON.stringify(book)})'>
+                    <i class="fas fa-shopping-cart"></i> Səbətə at
+                </button>
             </div>
         </div>
         <div class="book-info">
@@ -209,6 +249,7 @@ function createBookCard(book) {
             </div>
             <div class="book-meta">
                 <span class="book-price">${price} ₼</span>
+                <span class="view-detail-link" style="color: var(--primary); font-size: 0.85rem; font-weight: 600;"><i class="fas fa-eye"></i> Ətraflı</span>
             </div>
         </div>
     `;
@@ -217,7 +258,13 @@ function createBookCard(book) {
 
 // ===== CART LOGIC =====
 
-window.addToCart = (book) => {
+window.addToCart = (bookOrId) => {
+    let book = bookOrId;
+    if (typeof bookOrId === 'number' || typeof bookOrId === 'string') {
+        book = state.books.find(b => b.id == bookOrId);
+    }
+    if (!book) return;
+
     const found = state.cart.find(item => item.id === book.id);
     if (found) {
         found.quantity++;

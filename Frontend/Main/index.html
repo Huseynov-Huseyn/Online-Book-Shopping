@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookShop | Premium Kitabxana</title>
+    <title>Omega | Premium Kitabxana</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
 <body>
     <header>
         <div class="header-container">
-            <a href="index.html" class="logo">Book<span>Shop</span></a>
+            <a href="index.html" class="logo">Ome<span>ga</span></a>
             <nav>
                 <ul class="nav-links">
                     <li><a href="index.html" class="active">📚 Kataloq</a></li>
@@ -35,53 +35,112 @@
     </header>
 
     <main class="container">
-        <section id="hero" class="fade-in">
-            <div style="text-align: center; padding: 60px 0;">
-                <h1 style="font-size: 3.5rem; margin-bottom: 20px;">Dünyanın Bütün Kitabları <br> <span
-                        style="color: var(--primary)">Sizin Üçün</span></h1>
-                <p style="color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto 40px;">
-                    Ən geniş kitab kolleksiyasını kəşf edin. Klassik əsərlərdən müasir bestsellerlərə qədər hər şey
-                    burada.
-                </p>
-                <div style="display: flex; gap: 15px; justify-content: center;">
-                    <a href="#katalog" class="btn btn-primary">İndi Kəşf Et</a>
-                    <a href="addbook.html" class="btn btn-secondary">Kitab Paylaş</a>
+        <!-- Interactive Bookstore Hero Section -->
+        <section id="hero" class="hero-section fade-in">
+            <div class="hero-grid">
+                <div class="hero-content">
+                    <div class="hero-tag">🌟 Premium Onlayn Mağaza</div>
+                    <h1>Hər Səhifədə <br>Yeni Bir <span class="gradient-text">Dünya Kəşf Et</span></h1>
+                    <p>
+                        Ən maraqlı hekayələr, elmi tədqiqatlar, tarixi romanlar və dedektiv macəralar burada sizi gözləyir. Ruhunuzu və ağlınızı zənginləşdirin.
+                    </p>
+                    <div class="hero-actions-row">
+                        <a href="#katalog" class="btn btn-primary btn-lg"><i class="fas fa-compass"></i> Kataloqa Keç</a>
+                        <a href="addbook.html" class="btn btn-secondary btn-lg"><i class="fas fa-plus"></i> Kitab Əlavə Et</a>
+                    </div>
+                </div>
+                <div class="hero-spotlight">
+                    <div class="spotlight-card" id="spotlight-book-card" style="display: none;">
+                        <div class="spotlight-badge"><i class="fas fa-award"></i> Günün Seçimi</div>
+                        <img src="" alt="Featured Book" class="spotlight-img" id="spotlight-img" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop'">
+                        <div class="spotlight-info">
+                            <h3 id="spotlight-title">Yüklənir...</h3>
+                            <p id="spotlight-author"></p>
+                            <span class="price-lbl" id="spotlight-price">0.00 ₼</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section id="katalog" class="fade-in">
-            <div class="section-title">
-                <i class="fas fa-layer-group" style="color: var(--primary)"></i> Mövcud Kitablar
+        <!-- Dynamic Literary Quote & Reading Widget Bento Section -->
+        <section id="bento-widgets" class="bento-grid fade-in">
+            <!-- Literary Quote Widget -->
+            <div class="bento-card quote-widget" onclick="generateRandomQuote()">
+                <div class="widget-icon"><i class="fas fa-quote-left"></i></div>
+                <div class="quote-text" id="quote-display">"Kitabsız yaşamaq, kor-karana yaşamaqdır."</div>
+                <div class="quote-author" id="quote-author-display">— Seneca</div>
+                <div class="quote-refresh-tip"><i class="fas fa-sync-alt"></i> Yeni sitat üçün toxunun</div>
             </div>
 
-            <div class="controls panel">
+            <!-- Reading Calculator Widget -->
+            <div class="bento-card calc-widget">
+                <div class="widget-icon"><i class="fas fa-book-reader"></i></div>
+                <h3>📚 Kitab Oxu Müddəti Təxmini</h3>
+                <p style="font-size: 0.85rem; margin-bottom: 12px; line-height: 1.4; color: var(--text-muted);">
+                    Səhifə sayını daxil edin. Gündəlik <strong>1 saat</strong> oxumaqla bu kitabı neçə günə bitirəcəyinizi hesablayın.
+                </p>
+                <div class="calc-inputs" style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <input type="number" id="calc-pages" placeholder="Səhifə sayı" min="1" value="250" oninput="calculateReadingTime()" style="flex: 1; padding: 10px; border-radius: 8px;">
+                    <select id="calc-speed" onchange="calculateReadingTime()" style="flex: 1; padding: 10px; border-radius: 8px;">
+                        <option value="slow">Yavaş (30 söz/dəq)</option>
+                        <option value="normal" selected>Normal (45 söz/dəq)</option>
+                        <option value="fast">Sürətli (60 söz/dəq)</option>
+                    </select>
+                </div>
+                <div class="calc-result" id="calc-result-text" style="font-size: 0.95rem; font-weight: 600; padding: 10px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; border-left: 4px solid var(--primary); color: var(--text-main);">
+                    Təxmini oxu vaxtı: <strong>5.0 saat</strong> (cəmi <strong>5 gün</strong>)
+                </div>
+            </div>
+        </section>
+
+        <!-- Genre Explorer Bento Badges -->
+        <section id="genres" class="genres-section fade-in">
+            <div class="section-title-wrapper">
+                <h2 class="section-title"><i class="fas fa-compass"></i> Janrlar üzrə axtarış</h2>
+            </div>
+            <div class="genre-badges">
+                <button class="genre-btn active" onclick="filterGenre('all')">🏷️ Hamısı</button>
+                <button class="genre-btn" onclick="filterGenre('Bədii')">🎨 Bədii</button>
+                <button class="genre-btn" onclick="filterGenre('Elmi')">🔬 Elmi</option>
+                <button class="genre-btn" onclick="filterGenre('Tarix')">📖 Tarix</option>
+                <button class="genre-btn" onclick="filterGenre('Dedektiv')">🔍 Dedektiv</option>
+            </div>
+        </section>
+
+        <!-- Catalog Listing Section -->
+        <section id="katalog" class="katalog-section fade-in">
+            <div class="section-title-wrapper">
+                <h2 class="section-title"><i class="fas fa-layer-group"></i> Kitab Kataloqu</h2>
+                <div id="stats-panel" class="stats-badge">
+                    <i class="fas fa-database"></i> Bazada: <strong id="total-count">0</strong> kitab var
+                </div>
+            </div>
+
+            <!-- Filters Controls -->
+            <div class="controls-panel">
                 <div class="search-wrapper">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Kitab adı, müəllif və ya kateqoriya..."
-                        onkeyup="applyFiltersAndSort()">
+                    <input type="text" id="search-input" placeholder="Kitab adı, müəllif, kateqoriya axtar..." onkeyup="applyFiltersAndSort()">
                 </div>
 
-                <select id="filter-category" onchange="applyFiltersAndSort()">
-                    <option value="all">Bütün Kateqoriyalar</option>
-                    <option value="Bədii">🎨 Bədii</option>
-                    <option value="Elmi">🔬 Elmi</option>
-                    <option value="Tarix">📖 Tarix</option>
-                    <option value="Dedektiv">🔍 Dedektiv</option>
-                </select>
+                <div class="filters-right">
+                    <select id="filter-category" onchange="applyFiltersAndSort()">
+                        <option value="all">Bütün Kateqoriyalar</option>
+                        <option value="Bədii">🎨 Bədii</option>
+                        <option value="Elmi">🔬 Elmi</option>
+                        <option value="Tarix">📖 Tarix</option>
+                        <option value="Dedektiv">🔍 Dedektiv</option>
+                    </select>
 
-                <select id="sort-books" onchange="applyFiltersAndSort()">
-                    <option value="default">Sıralama</option>
-                    <option value="price-asc">Qiymət (Ucuzdan)</option>
-                    <option value="price-desc">Qiymət (Bahadan)</option>
-                    <option value="year-desc">Yeni Nəşrlər</option>
-                    <option value="title-az">Ad (A-Z)</option>
-                </select>
-            </div>
-
-            <div id="stats-panel" style="margin-bottom: 20px; color: var(--text-muted); font-weight: 600;">
-                <i class="fas fa-database"></i> Bazada cəmi <span id="total-count"
-                    style="color: var(--primary)">0</span> kitab var.
+                    <select id="sort-books" onchange="applyFiltersAndSort()">
+                        <option value="default">Sıralama Seçin</option>
+                        <option value="price-asc">💸 Qiymət (Ucuzdan)</option>
+                        <option value="price-desc">💸 Qiymət (Bahadan)</option>
+                        <option value="year-desc">📅 Yeni Nəşrlər</option>
+                        <option value="title-az">🔤 Ad (A-Z)</option>
+                    </select>
+                </div>
             </div>
 
             <div id="book-list" class="books-grid">
@@ -108,8 +167,74 @@
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2026 BookShop | Crafted with ❤️ for readers</p>
+    <!-- Book Details Modal -->
+    <div id="details-modal" class="details-overlay" style="display: none;">
+        <div class="details-card fade-in">
+            <button class="details-close" onclick="closeBookDetails()">&times;</button>
+            <div class="details-grid">
+                <div class="details-image-section">
+                    <img id="modal-book-img" src="" alt="Book Cover" onerror="this.src='https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&auto=format&fit=crop'">
+                </div>
+                <div class="details-info-section">
+                    <span id="modal-book-category" class="details-badge">KATEQORİYA</span>
+                    <h2 id="modal-book-title" class="details-title">Kitab Başlığı</h2>
+                    <h3 id="modal-book-author" class="details-author">Yazar Adı</h3>
+                    <hr class="details-divider">
+                    <div class="details-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-file-alt"></i>
+                            <span id="modal-book-pages">0</span> səhifə
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span id="modal-book-year">0</span> Nəşr
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-star" style="color: var(--warning);"></i>
+                            <span>4.8 / 5</span> Reytinq
+                        </div>
+                    </div>
+                    <p id="modal-book-desc" class="details-desc">
+                        Bu kitab haqqında ətraflı məlumat tezliklə əlavə olunacaq. Hər səhifədə yeni bir kəşf və heyranedici hekayə sizi gözləyir.
+                    </p>
+                    <div class="details-price-row">
+                        <span id="modal-book-price" class="details-price">0.00 ₼</span>
+                        <button id="modal-add-cart-btn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-cart-plus"></i> Səbətə Əlavə Et
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="premium-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">Ome<span>ga</span></a>
+                <p>Hər səhifədə yeni bir dünya. Ən son kitab nəşrləri və klassik əsərlər.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Sürətli Keçidlər</h4>
+                <ul>
+                    <li><a href="index.html">📚 Kataloq</a></li>
+                    <li><a href="addbook.html">➕ Əlavə Et</a></li>
+                    <li><a href="admin.html">⚙️ Admin</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Sosial Şəbəkələr</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Omega | Crafted with ❤️ for readers</p>
+        </div>
     </footer>
 
     <script src="function.js"></script>
@@ -125,6 +250,116 @@
         if (closeCart) {
             closeCart.onclick = () => cartPanel.classList.remove('open');
         }
+
+        // Quote Widget Generator
+        const QUOTES = [
+            { text: "Kitabsız yaşamaq, kor-karana yaşamaqdır.", author: "Seneca" },
+            { text: "Yaxşı kitab, yaxşı dostdur.", author: "Hafiz Şirazi" },
+            { text: "Kitablar da insanlar kimidir, ruhu olanlar yaşayır.", author: "Naməlum" },
+            { text: "Oxumaq, insanı yetkinləşdirər, danışmaq ağıllı edər.", author: "Francis Bacon" },
+            { text: "Bir insanın dəyəri oxuduğu kitablarla ölçülür.", author: "Herbert Spencer" },
+            { text: "Kitab oxumaq boş vaxtı doldurmaq deyil, ruhu bəsləməkdir.", author: "Sokrat" }
+        ];
+
+        window.generateRandomQuote = () => {
+            const quoteDisplay = document.getElementById('quote-display');
+            const quoteAuthor = document.getElementById('quote-author-display');
+            const quoteCard = document.querySelector('.quote-widget');
+            
+            if (!quoteCard) return;
+            quoteCard.style.transform = 'scale(0.95)';
+            quoteCard.style.opacity = '0.5';
+            
+            setTimeout(() => {
+                const random = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+                if (quoteDisplay) quoteDisplay.textContent = `"${random.text}"`;
+                if (quoteAuthor) quoteAuthor.textContent = `— ${random.author}`;
+                quoteCard.style.transform = '';
+                quoteCard.style.opacity = '1';
+            }, 300);
+        };
+
+        // Reading Time Calculator
+        window.calculateReadingTime = () => {
+            const pages = parseInt(document.getElementById('calc-pages').value) || 0;
+            const speed = document.getElementById('calc-speed').value;
+            const resultText = document.getElementById('calc-result-text');
+            
+            if (!resultText) return;
+            if (pages <= 0) {
+                resultText.innerHTML = "Lütfən doğru səhifə sayı daxil edin.";
+                return;
+            }
+            
+            const totalWords = pages * 250;
+            let speedWordsPerMin = 45;
+            if (speed === 'slow') speedWordsPerMin = 30;
+            else if (speed === 'fast') speedWordsPerMin = 60;
+            
+            const minutes = totalWords / speedWordsPerMin;
+            const hours = (minutes / 60).toFixed(1);
+            const days = Math.ceil(parseFloat(hours));
+            
+            resultText.innerHTML = `Təxmini oxu vaxtı: <strong>${hours} saat</strong> (gündə 1 saat oxumaqla <strong>${days} gün</strong>)`;
+        };
+
+        // Genre Badge Filter handler
+        window.filterGenre = (category) => {
+            const genreBtns = document.querySelectorAll('.genre-btn');
+            genreBtns.forEach(btn => {
+                if (btn.textContent.includes(category === 'all' ? 'Hamısı' : category)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            const categorySelect = document.getElementById('filter-category');
+            if (categorySelect) {
+                categorySelect.value = category;
+                applyFiltersAndSort();
+            }
+        };
+
+        // Book details modal handlers
+        window.openBookDetails = (bookId) => {
+            const book = state.books.find(b => b.id === bookId);
+            if (!book) return;
+            
+            document.getElementById('modal-book-img').src = book.imageUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&auto=format&fit=crop';
+            document.getElementById('modal-book-category').textContent = book.category;
+            document.getElementById('modal-book-title').textContent = book.title;
+            document.getElementById('modal-book-author').textContent = book.author;
+            document.getElementById('modal-book-pages').textContent = book.pages;
+            document.getElementById('modal-book-year').textContent = book.year;
+            document.getElementById('modal-book-price').textContent = `${book.price.toFixed(2)} ₼`;
+            
+            const descMap = {
+                'Bədii': `Bu möhtəşəm bədii əsər oxucunu xəyallar aləminə və dərin hisslərə qərq edəcək. Yazarın zəngin dili və təsirli hekayəsi ilə hər bir personajın hisslərini özünüz yaşayacaqsınız.`,
+                'Elmi': `Ən son elmi araşdırmalar və kəşfləri özündə cəmləşdirən bu kitab, ətrafımızdakı dünyanı anlamaq və intellektual üfüqlərimizi genişləndirmək üçün əvəzolunmaz vəsaitdir.`,
+                'Tarix': `Keçmişin qaranlıq səhifələrinə işıq salan bu əsər, tarixi faktları canlı və cəlbedici şəkildə təqdim edir. Keçmişimizin bu günü necə formalaşdırdığını birlikdə kəşf edin.`,
+                'Dedektiv': `Gözlənilməz sonluqlar, sirli hadisələr və intriqalarla dolu bu dedektiv romanı son səhifəsinə qədər sizi gərginlikdə saxlayacaq. Sirri ilk kim tapacaq?`
+            };
+            document.getElementById('modal-book-desc').textContent = descMap[book.category] || `Bu maraqlı kitab sizi heyranedici məlumatlar və fərqli hekayələr dünyasına aparacaq. Hər səhifədə fərqli bir macəra sizi gözləyir.`;
+            
+            const addBtn = document.getElementById('modal-add-cart-btn');
+            addBtn.onclick = () => {
+                addToCart(book.id);
+                closeBookDetails();
+            };
+            
+            document.getElementById('details-modal').style.display = 'flex';
+        };
+
+        window.closeBookDetails = () => {
+            document.getElementById('details-modal').style.display = 'none';
+        };
+
+        // Initialize quote and calculator on load
+        setTimeout(() => {
+            generateRandomQuote();
+            calculateReadingTime();
+        }, 500);
     </script>
 </body>
 
