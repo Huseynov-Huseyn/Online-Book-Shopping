@@ -56,7 +56,12 @@
             </div>
         </div>
 
-        <div class="panel fade-in">
+        <div class="admin-tabs fade-in" style="margin-bottom: 20px;">
+            <button class="admin-tab-btn active" id="tab-books" onclick="switchAdminTab('books')">📚 Kitablar</button>
+            <button class="admin-tab-btn" id="tab-users" onclick="switchAdminTab('users')">👥 İstifadəçilər</button>
+        </div>
+
+        <div class="panel fade-in" id="books-panel">
             <div class="section-title">
                 <i class="fas fa-tools" style="color: var(--primary)"></i> Kitabların İdarəedilməsi
             </div>
@@ -78,6 +83,16 @@
 
             <div id="admin-books-container">
                 <!-- Admin table will be injected here -->
+            </div>
+        </div>
+
+        <div class="panel fade-in" id="users-panel" style="display: none;">
+            <div class="section-title">
+                <i class="fas fa-users" style="color: var(--primary)"></i> İstifadəçilərin Siyahısı
+            </div>
+
+            <div id="admin-users-container">
+                <!-- Admin users table will be injected here -->
             </div>
         </div>
     </main>
@@ -211,13 +226,11 @@
         async function deleteAdminBook(id) {
             if (!confirm('Silmək istədiyinizdən əminsiniz?')) return;
             try {
-                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-                if (response.ok) {
-                    showToast('Kitab silindi', 'success');
-                    loadAdminBooks();
-                }
+                await apiRequest(`${API_URL}/${id}`, { method: 'DELETE' });
+                showToast('Kitab silindi', 'success');
+                loadAdminBooks();
             } catch (error) {
-                showToast('Xəta baş verdi', 'danger');
+                showToast('Silmə zamanı xəta baş verdi və ya səlahiyyətiniz yoxdur', 'danger');
             }
         }
 
@@ -239,6 +252,73 @@
                 loadAdminBooks();
             }
         });
+
+        // Tabs management
+        function switchAdminTab(tab) {
+            const booksPanel = document.getElementById('books-panel');
+            const usersPanel = document.getElementById('users-panel');
+            const tabBooks = document.getElementById('tab-books');
+            const tabUsers = document.getElementById('tab-users');
+
+            if (tab === 'books') {
+                booksPanel.style.display = 'block';
+                usersPanel.style.display = 'none';
+                tabBooks.classList.add('active');
+                tabUsers.classList.remove('active');
+                loadAdminBooks();
+            } else {
+                booksPanel.style.display = 'none';
+                usersPanel.style.display = 'block';
+                tabBooks.classList.remove('active');
+                tabUsers.classList.add('active');
+                loadAdminUsers();
+            }
+        }
+
+        // Users management loading
+        async function loadAdminUsers() {
+            const container = document.getElementById('admin-users-container');
+            if (!container) return;
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            try {
+                const users = await apiRequest(`${API_BASE_URL}/api/users`);
+                renderAdminUsersTable(users);
+            } catch (error) {
+                container.innerHTML = '<div class="empty">İstifadəçiləri yükləmək mümkün olmadı</div>';
+            }
+        }
+
+        function renderAdminUsersTable(users) {
+            const container = document.getElementById('admin-users-container');
+            if (!container) return;
+            
+            if (users.length === 0) {
+                container.innerHTML = '<div class="empty">👥 Heç bir istifadəçi tapılmadı</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>İstifadəçi ID</th>
+                            <th>İstifadəçi Adı</th>
+                            <th>Səlahiyyət (Rol)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td><code>${user.id}</code></td>
+                                <td><strong>${escapeHtml(user.username)}</strong></td>
+                                <td><span class="badge" style="background: rgba(99, 102, 241, 0.1);">${getFriendlyRole(user.role)}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
 
         // Re-run init if needed or just call loadAdminBooks
         window.onload = () => {

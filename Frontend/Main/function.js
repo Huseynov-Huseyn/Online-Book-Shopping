@@ -13,7 +13,8 @@ let state = {
     cart: JSON.parse(localStorage.getItem('cart')) || [],
     isEditMode: false,
     editBookId: null,
-    theme: localStorage.getItem('theme') || 'dark'
+    theme: localStorage.getItem('theme') || 'dark',
+    user: JSON.parse(localStorage.getItem('user')) || null
 };
 
 // Initialization
@@ -26,6 +27,8 @@ if (document.readyState === 'loading') {
 function initApp() {
     applyTheme();
     updateCartUI();
+    updateHeaderAuthUI();
+    applyNavigationAccess();
     
     // Page-specific initialization
     const path = window.location.pathname;
@@ -115,8 +118,20 @@ function toggleTheme() {
 
 async function apiRequest(endpoint, options = {}) {
     try {
+        const token = localStorage.getItem('token');
+        if (token) {
+            options.headers = options.headers || {};
+            if (!options.headers['Authorization']) {
+                options.headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
         const response = await fetch(endpoint, options);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                handleAuthError();
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         return await response.json();
     } catch (error) {
         console.error('API Error:', error);
@@ -315,10 +330,22 @@ async function uploadImageToBackend(bookId, file) {
     const formData = new FormData();
     formData.append('file', file);
     try {
+        const headers = {};
+        const token = localStorage.getItem('token');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
         const response = await fetch(`${API_URL}/${bookId}/upload-image`, {
             method: 'POST',
+            headers: headers,
             body: formData
         });
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                handleAuthError();
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         return response.ok;
     } catch (error) {
         console.error('Image upload failed', error);
@@ -328,15 +355,14 @@ async function uploadImageToBackend(bookId, file) {
 
 window.submitBookForm = async (bookData, imageFile) => {
     try {
-        const response = await fetch(API_URL, {
+        const savedBook = await apiRequest(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(bookData)
         });
 
-        if (response.ok) {
-            const savedBook = await response.json();
-            if (imageFile && savedBook.id) {
+        if (savedBook && savedBook.id) {
+            if (imageFile) {
                 await uploadImageToBackend(savedBook.id, imageFile);
             }
             showToast('✅ Kitab uğurla əlavə edildi', 'success');
@@ -344,7 +370,7 @@ window.submitBookForm = async (bookData, imageFile) => {
         }
         return { success: false, message: 'Xəta baş verdi' };
     } catch (error) {
-        showToast('❌ Bağlantı xətası', 'danger');
+        showToast('❌ Kitab əlavə edilərkən xəta baş verdi', 'danger');
         return { success: false };
     }
 };
@@ -378,3 +404,266 @@ window.updateAdminBook = async (id, data) => {
         return { success: false };
     }
 };
+
+// ===== AUTHENTICATION & SECURITY SYSTEM =====
+
+function saveUserSession(token, username, role) {
+    state.user = { token, username, role };
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(state.user));
+    updateHeaderAuthUI();
+    applyNavigationAccess();
+}
+
+function clearUserSession() {
+    state.user = null;
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    updateHeaderAuthUI();
+    applyNavigationAccess();
+}
+
+function getFriendlyRole(role) {
+    switch (role) {
+        case 'ROLE_ADMIN': return 'Admin';
+        case 'ROLE_SATICI': return 'Satıcı';
+        case 'ROLE_ALICI': return 'Alıcı';
+        default: return role;
+    }
+}
+
+function ensureAuthModal() {
+    if (document.getElementById('auth-modal')) return;
+
+    const modalHtml = `
+    <div id="auth-modal" class="auth-overlay">
+        <div class="auth-container">
+            <button class="auth-close" onclick="closeAuthModal()">&times;</button>
+            <div class="auth-tabs">
+                <button id="tab-login-btn" class="auth-tab-btn active" onclick="switchAuthTab('login')">Giriş</button>
+                <button id="tab-register-btn" class="auth-tab-btn" onclick="switchAuthTab('register')">Qeydiyyat</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active" onsubmit="handleLoginSubmit(event)">
+                <div class="input-group">
+                    <label for="login-username">İstifadəçi adı</label>
+                    <input type="text" id="login-username" placeholder="İstifadəçi adınızı daxil edin" required autocomplete="username">
+                </div>
+                <div class="input-group" style="margin-top: 15px;">
+                    <label for="login-password">Şifrə</label>
+                    <input type="password" id="login-password" placeholder="Şifrənizi daxil edin" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 25px; width: 100%;">Daxil Ol</button>
+            </form>
+            
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form" onsubmit="handleRegisterSubmit(event)">
+                <div class="input-group">
+                    <label for="register-username">İstifadəçi adı</label>
+                    <input type="text" id="register-username" placeholder="Yeni istifadəçi adı" required autocomplete="username">
+                </div>
+                <div class="input-group" style="margin-top: 15px;">
+                    <label for="register-password">Şifrə</label>
+                    <input type="password" id="register-password" placeholder="Şifrənizi təyin edin" required autocomplete="new-password">
+                </div>
+                <div class="input-group" style="margin-top: 15px;">
+                    <label for="register-role">Rol seçin</label>
+                    <select id="register-role" required>
+                        <option value="ROLE_ALICI">Alıcı (Kitab alışı və kataloq)</option>
+                        <option value="ROLE_SATICI">Satıcı (Kitab əlavə etmək/redaktə)</option>
+                        <option value="ROLE_ADMIN">Admin (Tam səlahiyyət)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 25px; width: 100%;">Qeydiyyatdan Keç</button>
+            </form>
+        </div>
+    </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+window.openAuthModal = () => {
+    ensureAuthModal();
+    document.getElementById('auth-modal').classList.add('active');
+    switchAuthTab('login');
+};
+
+window.closeAuthModal = () => {
+    const modal = document.getElementById('auth-modal');
+    if (modal) modal.classList.remove('active');
+};
+
+window.switchAuthTab = (tab) => {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const loginTab = document.getElementById('tab-login-btn');
+    const registerTab = document.getElementById('tab-register-btn');
+    
+    if (tab === 'login') {
+        loginForm.classList.add('active');
+        registerForm.classList.remove('active');
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+    } else {
+        loginForm.classList.remove('active');
+        registerForm.classList.add('active');
+        loginTab.classList.remove('active');
+        registerTab.classList.add('active');
+    }
+};
+
+window.handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        
+        if (!response.ok) {
+            const errData = await response.json();
+            showToast('❌ Giriş uğursuzdur: ' + (errData.error || 'Username və ya şifrə yanlışdır'), 'danger');
+            return;
+        }
+        
+        const data = await response.json();
+        saveUserSession(data.token, data.username, data.role);
+        closeAuthModal();
+        showToast('✅ Giriş uğurludur! Xoş gəldiniz, ' + data.username, 'success');
+        
+        // Reload admin / addbook page if they login from home, or keep them there
+        const path = window.location.pathname;
+        if (path.includes('admin.html') || path.includes('addbook.html')) {
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showToast('❌ Giriş zamanı xəta baş verdi', 'danger');
+    }
+};
+
+window.handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('register-username').value;
+    const password = document.getElementById('register-password').value;
+    const role = document.getElementById('register-role').value;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, role })
+        });
+        
+        if (!response.ok) {
+            const errData = await response.json();
+            showToast('❌ Qeydiyyat xətası: ' + (errData.error || 'İstifadəçi adı artıq mövcud ola bilər'), 'danger');
+            return;
+        }
+        
+        const data = await response.json();
+        saveUserSession(data.token, data.username, data.role);
+        closeAuthModal();
+        showToast('✅ Qeydiyyat uğurludur! Rolunuz: ' + getFriendlyRole(data.role), 'success');
+        
+        const path = window.location.pathname;
+        if (path.includes('admin.html') || path.includes('addbook.html')) {
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('Register error:', error);
+        showToast('❌ Qeydiyyat zamanı xəta baş verdi', 'danger');
+    }
+};
+
+function updateHeaderAuthUI() {
+    const actionsContainer = document.querySelector('.header-actions');
+    if (!actionsContainer) return;
+    
+    const existingAuth = actionsContainer.querySelector('.header-auth-section');
+    if (existingAuth) existingAuth.remove();
+    
+    const authDiv = document.createElement('div');
+    authDiv.className = 'header-auth-section';
+    authDiv.style.display = 'flex';
+    authDiv.style.alignItems = 'center';
+    authDiv.style.gap = '10px';
+    
+    if (state.user) {
+        authDiv.innerHTML = `
+            <div class="user-badge">
+                <i class="fas fa-user"></i>
+                <span>${escapeHtml(state.user.username)}</span>
+                <span class="user-role-lbl">${getFriendlyRole(state.user.role)}</span>
+            </div>
+            <button class="btn-auth-action btn-logout-header" onclick="logoutUser()">
+                <i class="fas fa-sign-out-alt"></i> Çıxış
+            </button>
+        `;
+    } else {
+        authDiv.innerHTML = `
+            <button class="btn-auth-action btn-login-header" onclick="openAuthModal()">
+                <i class="fas fa-sign-in-alt"></i> Giriş
+            </button>
+        `;
+    }
+    
+    actionsContainer.insertBefore(authDiv, actionsContainer.firstChild);
+}
+
+window.logoutUser = () => {
+    clearUserSession();
+    showToast('🚪 Hesabdan çıxış edildi', 'info');
+    // Redirect to index page
+    const path = window.location.pathname;
+    if (!path.includes('index.html') && path !== '/' && !path.endsWith('Main/') && !path.endsWith('Main')) {
+        window.location.href = 'index.html';
+    }
+};
+
+function applyNavigationAccess() {
+    const navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+    
+    const isSaticiOrAdmin = state.user && (state.user.role === 'ROLE_SATICI' || state.user.role === 'ROLE_ADMIN');
+    const isAdmin = state.user && state.user.role === 'ROLE_ADMIN';
+    const path = window.location.pathname;
+    
+    let linksHtml = `
+        <li><a href="index.html" class="${path.includes('index.html') || path === '/' || path.endsWith('Main/') || path.endsWith('Main') ? 'active' : ''}">📚 Kataloq</a></li>
+    `;
+    
+    if (isSaticiOrAdmin) {
+        linksHtml += `
+            <li><a href="addbook.html" class="${path.includes('addbook.html') ? 'active' : ''}">➕ Əlavə Et</a></li>
+        `;
+    }
+    
+    if (isAdmin) {
+        linksHtml += `
+            <li><a href="admin.html" class="${path.includes('admin.html') ? 'active' : ''}">⚙️ Admin</a></li>
+        `;
+    }
+    
+    navLinks.innerHTML = linksHtml;
+    
+    // Route guards
+    if (path.includes('admin.html') && !isAdmin) {
+        window.location.href = 'index.html';
+    } else if (path.includes('addbook.html') && !isSaticiOrAdmin) {
+        window.location.href = 'index.html';
+    }
+}
+
+function handleAuthError() {
+    clearUserSession();
+    showToast('⚠️ Sessiya bitmişdir və ya səlahiyyətiniz yoxdur!', 'danger');
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 1500);
+}
