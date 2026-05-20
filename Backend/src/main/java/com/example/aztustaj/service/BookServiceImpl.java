@@ -2,9 +2,9 @@ package com.example.aztustaj.service;
 
 import com.example.aztustaj.entity.Book;
 import com.example.aztustaj.repository.BookRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,7 +17,7 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Book> getAllBooks(String search, String category, String sort) {
         List<Book> books;
 
@@ -41,11 +41,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
     }
 
     @Override
+    @Transactional
     public Book saveBook(Book book) {
         // Kitab null yoxlaması
         if (book == null) {
@@ -61,16 +63,19 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Book getBookById(String id) {
         return bookRepository.findById(id).orElse(null);
     }
 
     @Override
+    @Transactional
     public void deleteBook(String id) {
         bookRepository.deleteById(id);
     }
 
     @Override
+    @Transactional
     public Book updateBook(String id, Book book) {
         Book existingBook = bookRepository.findById(id).orElse(null);
         if (existingBook != null) {

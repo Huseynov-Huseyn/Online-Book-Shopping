@@ -74,13 +74,18 @@
                         <label for="price">Qiymət (₼) *</label>
                         <input type="number" id="price" value="18.50" step="0.01" min="0" required>
                     </div>
+                    <div class="input-group">
+                        <label for="stockQuantity">Stok Sayı *</label>
+                        <input type="number" id="stockQuantity" value="10" min="0" required>
+                    </div>
                 </div>
 
                 <div
                     style="margin-top: 30px; padding: 30px; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 2px dashed var(--border);">
                     <label for="book-image"
                         style="display: block; font-weight: 600; margin-bottom: 15px; cursor: pointer;">
-                        <i class="fas fa-cloud-upload-alt" style="margin-right: 10px;"></i> Kitabın Üz Qabığı (İstəyə bağlı)
+                        <i class="fas fa-cloud-upload-alt" style="margin-right: 10px;"></i> Kitabın Üz Qabığı (İstəyə
+                        bağlı)
                     </label>
                     <input type="file" id="book-image" accept="image/*" style="width: 100%;">
 
@@ -151,7 +156,8 @@
                 category: document.getElementById('category-select').value,
                 pages: parseInt(document.getElementById('pages').value),
                 year: parseInt(document.getElementById('year').value),
-                price: parseFloat(document.getElementById('price').value)
+                price: parseFloat(document.getElementById('price').value),
+                stockQuantity: parseInt(document.getElementById('stockQuantity').value)
             };
 
             const result = await submitBookForm(bookData, file);

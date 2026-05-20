@@ -334,33 +334,45 @@
         };
 
         // Book details modal handlers
-        window.openBookDetails = (bookId) => {
-            const book = state.books.find(b => b.id === bookId);
-            if (!book) return;
+        window.openBookDetails = async (bookId) => {
+            const modal = document.getElementById('details-modal');
+            if (modal) modal.style.display = 'flex';
+            
+            // Show loading state first
+            document.getElementById('modal-book-title').textContent = 'Yüklənir...';
+            document.getElementById('modal-book-author').textContent = 'Gözləyin';
+            document.getElementById('modal-book-desc').textContent = 'Kitab məlumatları serverdən gətirilir...';
 
-            document.getElementById('modal-book-img').src = book.imageUrl ? getImageUrl(book.imageUrl) : 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&auto=format&fit=crop';
-            document.getElementById('modal-book-category').textContent = book.category;
-            document.getElementById('modal-book-title').textContent = book.title;
-            document.getElementById('modal-book-author').textContent = book.author;
-            document.getElementById('modal-book-pages').textContent = book.pages;
-            document.getElementById('modal-book-year').textContent = book.year;
-            document.getElementById('modal-book-price').textContent = `${book.price.toFixed(2)} ₼`;
+            try {
+                // Backend API call to get specific book
+                const book = await apiRequest(`${API_BASE_URL}/api/books/${bookId}`);
+                if (!book) return;
 
-            const descMap = {
-                'Bədii': `Bu möhtəşəm bədii əsər oxucunu xəyallar aləminə və dərin hisslərə qərq edəcək. Yazarın zəngin dili və təsirli hekayəsi ilə hər bir personajın hisslərini özünüz yaşayacaqsınız.`,
-                'Elmi': `Ən son elmi araşdırmalar və kəşfləri özündə cəmləşdirən bu kitab, ətrafımızdakı dünyanı anlamaq və intellektual üfüqlərimizi genişləndirmək üçün əvəzolunmaz vəsaitdir.`,
-                'Tarix': `Keçmişin qaranlıq səhifələrinə işıq salan bu əsər, tarixi faktları canlı və cəlbedici şəkildə təqdim edir. Keçmişimizin bu günü necə formalaşdırdığını birlikdə kəşf edin.`,
-                'Dedektiv': `Gözlənilməz sonluqlar, sirli hadisələr və intriqalarla dolu bu dedektiv romanı son səhifəsinə qədər sizi gərginlikdə saxlayacaq. Sirri ilk kim tapacaq?`
-            };
-            document.getElementById('modal-book-desc').textContent = descMap[book.category] || `Bu maraqlı kitab sizi heyranedici məlumatlar və fərqli hekayələr dünyasına aparacaq. Hər səhifədə fərqli bir macəra sizi gözləyir.`;
+                document.getElementById('modal-book-img').src = book.imageUrl ? getImageUrl(book.imageUrl) : 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&auto=format&fit=crop';
+                document.getElementById('modal-book-category').textContent = book.category;
+                document.getElementById('modal-book-title').textContent = book.title;
+                document.getElementById('modal-book-author').textContent = book.author;
+                document.getElementById('modal-book-pages').textContent = book.pages;
+                document.getElementById('modal-book-year').textContent = book.year;
+                document.getElementById('modal-book-price').textContent = `${book.price.toFixed(2)} ₼`;
 
-            const addBtn = document.getElementById('modal-add-cart-btn');
-            addBtn.onclick = () => {
-                addToCart(book.id);
-                closeBookDetails();
-            };
+                const descMap = {
+                    'Bədii': `Bu möhtəşəm bədii əsər oxucunu xəyallar aləminə və dərin hisslərə qərq edəcək. Yazarın zəngin dili və təsirli hekayəsi ilə hər bir personajın hisslərini özünüz yaşayacaqsınız.`,
+                    'Elmi': `Ən son elmi araşdırmalar və kəşfləri özündə cəmləşdirən bu kitab, ətrafımızdakı dünyanı anlamaq və intellektual üfüqlərimizi genişləndirmək üçün əvəzolunmaz vəsaitdir.`,
+                    'Tarix': `Keçmişin qaranlıq səhifələrinə işıq salan bu əsər, tarixi faktları canlı və cəlbedici şəkildə təqdim edir. Keçmişimizin bu günü necə formalaşdırdığını birlikdə kəşf edin.`,
+                    'Dedektiv': `Gözlənilməz sonluqlar, sirli hadisələr və intriqalarla dolu bu dedektiv romanı son səhifəsinə qədər sizi gərginlikdə saxlayacaq. Sirri ilk kim tapacaq?`
+                };
+                document.getElementById('modal-book-desc').textContent = descMap[book.category] || `Bu maraqlı kitab sizi heyranedici məlumatlar və fərqli hekayələr dünyasına aparacaq. Hər səhifədə fərqli bir macəra sizi gözləyir.`;
 
-            document.getElementById('details-modal').style.display = 'flex';
+                const addBtn = document.getElementById('modal-add-cart-btn');
+                addBtn.onclick = () => {
+                    addToCart(book);
+                    closeBookDetails();
+                };
+            } catch (error) {
+                document.getElementById('modal-book-title').textContent = 'Xəta!';
+                document.getElementById('modal-book-desc').textContent = 'Kitab məlumatlarını yükləmək mümkün olmadı.';
+            }
         };
 
         window.closeBookDetails = () => {

@@ -68,10 +68,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/orders").hasAnyAuthority("ROLE_USER", "ROLE_SATICI", "ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/orders").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/orders/{id}").hasAnyAuthority("ROLE_USER", "ROLE_SATICI", "ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/orders/user/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/orders/user/**").hasAnyAuthority("ROLE_USER", "ROLE_SATICI", "ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/orders/*/status").hasAnyAuthority("ROLE_SATICI", "ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/orders/**").hasAuthority("ROLE_ADMIN")
 
+                        .requestMatchers(HttpMethod.GET, "/api/users/{username}").hasAnyAuthority("ROLE_USER", "ROLE_SATICI", "ROLE_ADMIN")
                         .requestMatchers("/api/users/**").hasAuthority("ROLE_ADMIN")
 
                         .anyRequest().authenticated()

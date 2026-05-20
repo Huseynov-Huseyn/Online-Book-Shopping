@@ -19,9 +19,9 @@
         .admin-table tr:hover { background: rgba(255, 255, 255, 0.02); }
         
         /* Modal Styles */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: none; }
-        .modal-content { background: var(--bg-card); width: 90%; max-width: 600px; margin: 50px auto; padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border); position: relative; }
-        .modal-close { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: none; overflow-y: auto; }
+        .modal-content { background: var(--bg-card); width: 90%; max-width: 600px; margin: 50px auto; padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border); position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-close { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-muted); z-index: 10; }
     </style>
 </head>
 
@@ -146,6 +146,10 @@
                         <label>Qiymət</label>
                         <input type="number" id="edit-price" step="0.01" required>
                     </div>
+                    <div class="input-group">
+                        <label>Stok Sayı</label>
+                        <input type="number" id="edit-stockQuantity" min="0" required>
+                    </div>
                 </div>
 
                 <div style="margin-top: 25px; display: flex; gap: 10px;">
@@ -236,6 +240,7 @@
                             <th>Kitab</th>
                             <th>Müəllif</th>
                             <th>Kateqoriya</th>
+                            <th>Stok</th>
                             <th>Qiymət</th>
                             <th>Əməliyyat</th>
                         </tr>
@@ -247,6 +252,7 @@
                                 <td><strong>${escapeHtml(book.title)}</strong></td>
                                 <td>${escapeHtml(book.author)}</td>
                                 <td><span class="badge">${book.category}</span></td>
+                                <td>${book.stockQuantity || 0} ədəd</td>
                                 <td>${book.price.toFixed(2)} ₼</td>
                                 <td>
                                     <button class="btn btn-secondary" onclick="openEditModalById('${book.id}')">✏️</button>
@@ -310,7 +316,8 @@
                 category: document.getElementById('edit-category').value,
                 pages: parseInt(document.getElementById('edit-pages').value),
                 year: parseInt(document.getElementById('edit-year').value),
-                price: parseFloat(document.getElementById('edit-price').value)
+                price: parseFloat(document.getElementById('edit-price').value),
+                stockQuantity: parseInt(document.getElementById('edit-stockQuantity').value)
             };
             
             const result = await updateAdminBook(id, data);

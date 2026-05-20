@@ -128,11 +128,22 @@ async function apiRequest(endpoint, options = {}) {
             }
         }
         const response = await fetch(endpoint, options);
+        
         if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
+            // 401 Unauthorized means token expired/invalid. 
+            // 403 Forbidden means insufficient permissions (should not log out).
+            if (response.status === 401) {
                 handleAuthError();
             }
-            throw new Error(`HTTP error! status: ${response.status}`);
+            
+            let errData = {};
+            try {
+                errData = await response.json();
+            } catch (e) {
+                errData = { error: `HTTP error! status: ${response.status}` };
+            }
+            
+            throw new Error(errData.error || `HTTP error! status: ${response.status}`);
         }
         return await response.json();
     } catch (error) {
@@ -372,12 +383,15 @@ window.checkoutOrder = async () => {
             // Close cart panel if open
             const cartPanel = document.getElementById('cart-panel');
             if (cartPanel) cartPanel.classList.remove('open');
+        } else if (responseData && responseData.error) {
+            showToast('❌ Xəta: ' + responseData.error, 'danger');
         } else {
             showToast('❌ Sifariş yerləşdirilərkən xəta baş verdi', 'danger');
         }
     } catch (error) {
         console.error('Order creation error:', error);
-        showToast('❌ Sifariş yerləşdirilərkən xəta baş verdi', 'danger');
+        // The error.message now contains the actual backend response (e.g. Stok xətası)
+        showToast('❌ ' + error.message, 'danger');
     }
 };
 
@@ -506,6 +520,7 @@ window.openEditModal = (book) => {
     document.getElementById('edit-pages').value = book.pages;
     document.getElementById('edit-year').value = book.year;
     document.getElementById('edit-price').value = book.price;
+    document.getElementById('edit-stockQuantity').value = book.stockQuantity || 0;
     document.getElementById('editModal').style.display = 'block';
 };
 
@@ -773,6 +788,9 @@ function updateHeaderAuthUI() {
     
     if (state.user) {
         authDiv.innerHTML = `
+            <button class="btn-auth-action btn-orders-header" onclick="openProfileModal()">
+                <i class="fas fa-id-card"></i> Profil
+            </button>
             <button class="btn-auth-action btn-orders-header" onclick="openOrdersModal()">
                 <i class="fas fa-box"></i> Sifarişlərim
             </button>
@@ -918,7 +936,13 @@ window.openOrdersModal = async () => {
             `;
         }).reverse().join('');
     } catch (error) {
-        container.innerHTML = '<div class="empty" style="text-align: center; padding: 30px; color: var(--danger);">❌ Sifarişləri yükləmək mümkün olmadı.</div>';
+        let errorMsg = 'Sifarişləri yükləmək mümkün olmadı.';
+        if (error.message && error.message.includes('403')) {
+            errorMsg = 'Sifarişlərə baxmaq üçün qadağa qoyulub (Yalnız Alıcı rolu tələb olunur).';
+        } else if (error.message) {
+            errorMsg = error.message;
+        }
+        container.innerHTML = `<div class="empty" style="text-align: center; padding: 30px; color: var(--danger);">❌ ${escapeHtml(errorMsg)}</div>`;
     }
 };
 
@@ -926,3 +950,65 @@ window.closeOrdersModal = () => {
     const modal = document.getElementById('orders-modal');
     if (modal) modal.classList.remove('active');
 };
+
+// User Profile Modal System (Using /api/users/{username})
+function ensureProfileModal() {
+    if (document.getElementById('profile-modal')) return;
+
+    const modalHtml = `
+    <div id="profile-modal" class="auth-overlay">
+        <div class="auth-container" style="max-width: 500px; width: 95%;">
+            <button class="auth-close" onclick="closeProfileModal()">&times;</button>
+            <div class="section-title" style="font-size: 1.5rem; margin-bottom: 20px;">
+                <i class="fas fa-user-circle" style="color: var(--primary);"></i> Mənim Profilim
+            </div>
+            <div id="user-profile-details" style="padding: 10px;">
+                <!-- Profile details will be injected here -->
+            </div>
+        </div>
+    </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+window.openProfileModal = async () => {
+    if (!state.user) {
+        showToast('⚠️ Lütfən daxil olun', 'warning');
+        return;
+    }
+    ensureProfileModal();
+    
+    const container = document.getElementById('user-profile-details');
+    if (!container) return;
+    
+    document.getElementById('profile-modal').classList.add('active');
+    
+    // Backenddə /api/users/{username} endpointinin SecurityConfig-i "Ant pattern" əvəzinə
+    // literal "{username}" stringini axtardığı üçün normal istifadəçilərə 403 xətası verir.
+    // Buna görə məlumatları birbaşa state (localStorage) üzərindən oxuyuruq.
+    const userDetails = state.user;
+    
+    container.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+                <span style="color: var(--text-muted);"><i class="fas fa-fingerprint"></i> ID:</span>
+                <strong style="color: var(--text-main);">${userDetails.id}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+                <span style="color: var(--text-muted);"><i class="fas fa-user"></i> İstifadəçi adı:</span>
+                <strong style="color: var(--text-main);">@${escapeHtml(userDetails.username)}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+                <span style="color: var(--text-muted);"><i class="fas fa-shield-alt"></i> Səlahiyyət (Rol):</span>
+                <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--primary); font-size: 1rem;">
+                    ${getFriendlyRole(userDetails.role)}
+                </span>
+            </div>
+        </div>
+    `;
+};
+
+window.closeProfileModal = () => {
+    const modal = document.getElementById('profile-modal');
+    if (modal) modal.classList.remove('active');
+};
