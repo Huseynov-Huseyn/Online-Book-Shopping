@@ -3,255 +3,248 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Omega | Premium Kitabxana</title>
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
 </head>
 
 <body>
-    <header>
-        <div class="header-container">
-            <a href="index.html" class="logo">Ome<span>ga</span></a>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="index.html" class="active">📚 Kataloq</a></li>
-                    <li><a href="addbook.html">➕ Əlavə Et</a></li>
-                    <li><a href="admin.html">⚙️ Admin</a></li>
-                </ul>
-            </nav>
-            <div class="header-actions">
-                <button id="theme-toggle" title="Mövzunu dəyiş">🌙</button>
-                <button id="cart-toggle-btn" class="btn cart-btn">
-                    <i class="fas fa-shopping-cart"></i> (<span id="cart-count">0</span>)
-                </button>
-            </div>
+<header>
+    <div class="header-container">
+        <a class="logo" href="index.html">Ome<span>ga</span></a>
+        <nav>
+            <ul class="nav-links">
+                <li><a class="active" href="index.html">📚 Kataloq</a></li>
+                <li><a href="addbook.html">➕ Əlavə Et</a></li>
+                <li><a href="admin.html">⚙️ Admin</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <button id="theme-toggle" title="Mövzunu dəyiş">🌙</button>
+            <button class="btn cart-btn" id="cart-toggle-btn">
+                <i class="fas fa-shopping-cart"></i> (<span id="cart-count">0</span>)
+            </button>
         </div>
-    </header>
+    </div>
+</header>
 
-    <main class="container">
-        <!-- Interactive Bookstore Hero Section -->
-        <section id="hero" class="hero-section fade-in">
-            <div class="hero-grid">
-                <div class="hero-content">
-                    <div class="hero-tag">🌟 Premium Onlayn Mağaza</div>
-                    <h1>Hər Səhifədə <br>Yeni Bir <span class="gradient-text">Dünya Kəşf Et</span></h1>
-                    <p>
-                        Ən maraqlı hekayələr, elmi tədqiqatlar, tarixi romanlar və dedektiv macəralar burada sizi
-                        gözləyir. Ruhunuzu və ağlınızı zənginləşdirin.
-                    </p>
-                    <div class="hero-actions-row">
-                        <a href="#katalog" class="btn btn-primary btn-lg"><i class="fas fa-compass"></i> Kataloqa
-                            Keç</a>
-                        <a href="addbook.html" class="btn btn-secondary btn-lg"><i class="fas fa-plus"></i> Kitab Əlavə
-                            Et</a>
-                    </div>
-                </div>
-                <div class="hero-spotlight">
-                    <div class="spotlight-card" id="spotlight-book-card" style="display: none;">
-                        <div class="spotlight-badge"><i class="fas fa-award"></i> Günün Seçimi</div>
-                        <img src="" alt="Featured Book" class="spotlight-img" id="spotlight-img"
-                            onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop'">
-                        <div class="spotlight-info">
-                            <h3 id="spotlight-title">Yüklənir...</h3>
-                            <p id="spotlight-author"></p>
-                            <span class="price-lbl" id="spotlight-price">0.00 ₼</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Dynamic Literary Quote & Reading Widget Bento Section -->
-        <section id="bento-widgets" class="bento-grid fade-in">
-            <!-- Literary Quote Widget -->
-            <div class="bento-card quote-widget" onclick="generateRandomQuote()">
-                <div class="widget-icon"><i class="fas fa-quote-left"></i></div>
-                <div class="quote-text" id="quote-display">"Kitabsız yaşamaq, kor-karana yaşamaqdır."</div>
-                <div class="quote-author" id="quote-author-display">— Seneca</div>
-                <div class="quote-refresh-tip"><i class="fas fa-sync-alt"></i> Yeni sitat üçün toxunun</div>
-            </div>
-
-            <!-- Reading Calculator Widget -->
-            <div class="bento-card calc-widget">
-                <div class="widget-icon"><i class="fas fa-book-reader"></i></div>
-                <h3>📚 Kitab Oxu Müddəti Təxmini</h3>
-                <p style="font-size: 0.85rem; margin-bottom: 12px; line-height: 1.4; color: var(--text-muted);">
-                    Səhifə sayını daxil edin. Gündəlik <strong>1 saat</strong> oxumaqla bu kitabı neçə günə
-                    bitirəcəyinizi hesablayın.
+<main class="container">
+    <!-- Interactive Bookstore Hero Section -->
+    <section class="hero-section fade-in" id="hero">
+        <div class="hero-grid">
+            <div class="hero-content">
+                <div class="hero-tag">🌟 Premium Onlayn Mağaza</div>
+                <h1>Hər Səhifədə <br>Yeni Bir <span class="gradient-text">Dünya Kəşf Et</span></h1>
+                <p>
+                    Ən maraqlı hekayələr, elmi tədqiqatlar, tarixi romanlar və dedektiv macəralar burada sizi
+                    gözləyir. Ruhunuzu və ağlınızı zənginləşdirin.
                 </p>
-                <div class="calc-inputs" style="display: flex; gap: 10px; margin-bottom: 12px;">
-                    <input type="number" id="calc-pages" placeholder="Səhifə sayı" min="1" value="250"
-                        oninput="calculateReadingTime()" style="flex: 1; padding: 10px; border-radius: 8px;">
-                    <select id="calc-speed" onchange="calculateReadingTime()"
-                        style="flex: 1; padding: 10px; border-radius: 8px;">
-                        <option value="slow">Yavaş (30 söz/dəq)</option>
-                        <option value="normal" selected>Normal (45 söz/dəq)</option>
-                        <option value="fast">Sürətli (60 söz/dəq)</option>
-                    </select>
-                </div>
-                <div class="calc-result" id="calc-result-text"
-                    style="font-size: 0.95rem; font-weight: 600; padding: 10px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; border-left: 4px solid var(--primary); color: var(--text-main);">
-                    Təxmini oxu vaxtı: <strong>5.0 saat</strong> (cəmi <strong>5 gün</strong>)
+                <div class="hero-actions-row">
+                    <a class="btn btn-primary btn-lg" href="#katalog"><i class="fas fa-compass"></i> Kataloqa
+                        Keç</a>
+                    <a class="btn btn-secondary btn-lg" href="addbook.html"><i class="fas fa-plus"></i> Kitab Əlavə
+                        Et</a>
                 </div>
             </div>
-        </section>
-
-        <!-- Genre Explorer Bento Badges -->
-        <section id="genres" class="genres-section fade-in">
-            <div class="section-title-wrapper">
-                <h2 class="section-title"><i class="fas fa-compass"></i> Janrlar üzrə axtarış</h2>
-            </div>
-            <div class="genre-badges">
-                <button class="genre-btn active" onclick="filterGenre('all')">🏷️ Hamısı</button>
-                <button class="genre-btn" onclick="filterGenre('Bədii')">🎨 Bədii</button>
-                <button class="genre-btn" onclick="filterGenre('Elmi')">🔬 Elmi</button>
-                <button class="genre-btn" onclick="filterGenre('Tarix')">📖 Tarix</button>
-                <button class="genre-btn" onclick="filterGenre('Dedektiv')">🔍 Dedektiv</option>
-            </div>
-        </section>
-
-        <!-- Catalog Listing Section -->
-        <section id="katalog" class="katalog-section fade-in">
-            <div class="section-title-wrapper">
-                <h2 class="section-title"><i class="fas fa-layer-group"></i> Kitab Kataloqu</h2>
-                <div id="stats-panel" class="stats-badge">
-                    <i class="fas fa-database"></i> Bazada: <strong id="total-count">0</strong> kitab var
-                </div>
-            </div>
-
-            <!-- Filters Controls -->
-            <div class="controls-panel">
-                <div class="search-wrapper">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Kitab adı, müəllif, kateqoriya axtar..."
-                        onkeyup="applyFiltersAndSort()">
-                </div>
-
-                <div class="filters-right">
-                    <select id="filter-category" onchange="applyFiltersAndSort()">
-                        <option value="all">Bütün Kateqoriyalar</option>
-                        <option value="Bədii">🎨 Bədii</option>
-                        <option value="Elmi">🔬 Elmi</option>
-                        <option value="Tarix">📖 Tarix</option>
-                        <option value="Dedektiv">🔍 Dedektiv</option>
-                    </select>
-
-                    <select id="sort-books" onchange="applyFiltersAndSort()">
-                        <option value="default">Sıralama Seçin</option>
-                        <option value="price-asc">💸 Qiymət (Ucuzdan)</option>
-                        <option value="price-desc">💸 Qiymət (Bahadan)</option>
-                        <option value="year-desc">📅 Yeni Nəşrlər</option>
-                        <option value="title-az">🔤 Ad (A-Z)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="book-list" class="books-grid">
-                <!-- Books will be injected here -->
-            </div>
-        </section>
-    </main>
-
-    <!-- Cart Sidebar -->
-    <div id="cart-panel" class="cart-panel">
-        <div class="cart-header">
-            <h3><i class="fas fa-shopping-basket"></i> Səbətiniz</h3>
-            <button id="close-cart" class="close-cart">&times;</button>
-        </div>
-        <div id="cart-list">
-            <!-- Cart items -->
-        </div>
-        <div class="cart-total">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                <span>Cəmi:</span>
-                <strong id="cart-total">0.00 ₼</strong>
-            </div>
-            <button class="btn btn-primary" style="width: 100%; padding: 15px;" onclick="checkoutOrder()">Sifarişi
-                Tamamla</button>
-        </div>
-    </div>
-
-    <!-- Book Details Modal -->
-    <div id="details-modal" class="details-overlay" style="display: none;">
-        <div class="details-card fade-in">
-            <button class="details-close" onclick="closeBookDetails()">&times;</button>
-            <div class="details-grid">
-                <div class="details-image-section">
-                    <img id="modal-book-img" src="" alt="Book Cover"
-                        onerror="this.src='https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&auto=format&fit=crop'">
-                </div>
-                <div class="details-info-section">
-                    <span id="modal-book-category" class="details-badge">KATEQORİYA</span>
-                    <h2 id="modal-book-title" class="details-title">Kitab Başlığı</h2>
-                    <h3 id="modal-book-author" class="details-author">Yazar Adı</h3>
-                    <hr class="details-divider">
-                    <div class="details-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-file-alt"></i>
-                            <span id="modal-book-pages">0</span> səhifə
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span id="modal-book-year">0</span> Nəşr
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-star" style="color: var(--warning);"></i>
-                            <span>4.8 / 5</span> Reytinq
-                        </div>
-                    </div>
-                    <p id="modal-book-desc" class="details-desc">
-                        Bu kitab haqqında ətraflı məlumat tezliklə əlavə olunacaq. Hər səhifədə yeni bir kəşf və
-                        heyranedici hekayə sizi gözləyir.
-                    </p>
-                    <div class="details-price-row">
-                        <span id="modal-book-price" class="details-price">0.00 ₼</span>
-                        <button id="modal-add-cart-btn" class="btn btn-primary btn-lg">
-                            <i class="fas fa-cart-plus"></i> Səbətə Əlavə Et
-                        </button>
+            <div class="hero-spotlight">
+                <div class="spotlight-card hidden-init" id="spotlight-book-card">
+                    <div class="spotlight-badge"><i class="fas fa-award"></i> Günün Seçimi</div>
+                    <img alt="Featured Book" class="spotlight-img" id="spotlight-img" src="">
+                    <div class="spotlight-info">
+                        <h3 id="spotlight-title">Yüklənir...</h3>
+                        <p id="spotlight-author"></p>
+                        <span class="price-lbl" id="spotlight-price">0.00 ₼</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <footer class="premium-footer">
-        <div class="footer-container">
-            <div class="footer-brand">
-                <a href="index.html" class="logo">Ome<span>ga</span></a>
-                <p>Hər səhifədə yeni bir dünya. Ən son kitab nəşrləri və klassik əsərlər.</p>
+    <!-- Dynamic Literary Quote & Reading Widget Bento Section -->
+    <section class="bento-grid fade-in" id="bento-widgets">
+        <!-- Literary Quote Widget -->
+        <div class="bento-card quote-widget" id="quote-widget">
+            <div class="widget-icon"><i class="fas fa-quote-left"></i></div>
+            <div class="quote-text" id="quote-display">"Kitabsız yaşamaq, kor-karana yaşamaqdır."</div>
+            <div class="quote-author" id="quote-author-display">— Seneca</div>
+            <div class="quote-refresh-tip"><i class="fas fa-sync-alt"></i> Yeni sitat üçün toxunun</div>
+        </div>
+
+        <!-- Reading Calculator Widget -->
+        <div class="bento-card calc-widget">
+            <div class="widget-icon"><i class="fas fa-book-reader"></i></div>
+            <h3>📚 Kitab Oxu Müddəti Təxmini</h3>
+            <p class="widget-desc">
+                Səhifə sayını daxil edin. Gündəlik <strong>1 saat</strong> oxumaqla bu kitabı neçə günə
+                bitirəcəyinizi hesablayın.
+            </p>
+            <div class="calc-inputs">
+                <input id="calc-pages" min="1" placeholder="Səhifə sayı" type="number" value="250">
+                <select id="calc-speed">
+                    <option value="slow">Yavaş (30 söz/dəq)</option>
+                    <option selected value="normal">Normal (45 söz/dəq)</option>
+                    <option value="fast">Sürətli (60 söz/dəq)</option>
+                </select>
             </div>
-            <div class="footer-links">
-                <h4>Sürətli Keçidlər</h4>
-                <ul>
-                    <li><a href="index.html">📚 Kataloq</a></li>
-                    <li><a href="addbook.html">➕ Əlavə Et</a></li>
-                    <li><a href="admin.html">⚙️ Admin</a></li>
-                </ul>
+            <div class="calc-result" id="calc-result-text">
+                Təxmini oxu vaxtı: <strong>5.0 saat</strong> (cəmi <strong>5 gün</strong>)
             </div>
-            <div class="footer-social">
-                <h4>Sosial Şəbəkələr</h4>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-telegram"></i></a>
+        </div>
+    </section>
+
+    <!-- Genre Explorer Bento Badges -->
+    <section class="genres-section fade-in" id="genres">
+        <div class="section-title-wrapper">
+            <h2 class="section-title"><i class="fas fa-compass"></i> Janrlar üzrə axtarış</h2>
+        </div>
+        <div class="genre-badges" id="genre-badges">
+            <button class="genre-btn active" data-genre="all">🏷️ Hamısı</button>
+            <button class="genre-btn" data-genre="Bədii">🎨 Bədii</button>
+            <button class="genre-btn" data-genre="Elmi">🔬 Elmi</button>
+            <button class="genre-btn" data-genre="Tarix">📖 Tarix</button>
+            <button class="genre-btn" data-genre="Dedektiv">🔍 Dedektiv</button>
+        </div>
+    </section>
+
+    <!-- Catalog Listing Section -->
+    <section class="katalog-section fade-in" id="katalog">
+        <div class="section-title-wrapper">
+            <h2 class="section-title"><i class="fas fa-layer-group"></i> Kitab Kataloqu</h2>
+            <div class="stats-badge" id="stats-panel">
+                <i class="fas fa-database"></i> Bazada: <strong id="total-count">0</strong> kitab var
+            </div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input id="search-input" placeholder="Kitab adı, müəllif, kateqoriya axtar..." type="text">
+            </div>
+
+            <div class="filters-right">
+                <select id="filter-category">
+                    <option value="all">Bütün Kateqoriyalar</option>
+                    <option value="Bədii">🎨 Bədii</option>
+                    <option value="Elmi">🔬 Elmi</option>
+                    <option value="Tarix">📖 Tarix</option>
+                    <option value="Dedektiv">🔍 Dedektiv</option>
+                </select>
+
+                <select id="sort-books">
+                    <option value="default">Sıralama Seçin</option>
+                    <option value="price-asc">💸 Qiymət (Ucuzdan)</option>
+                    <option value="price-desc">💸 Qiymət (Bahadan)</option>
+                    <option value="year-desc">📅 Yeni Nəşrlər</option>
+                    <option value="title-az">🔤 Ad (A-Z)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="books-grid" id="book-list">
+            <!-- Books will be injected here -->
+        </div>
+    </section>
+</main>
+
+<!-- Cart Sidebar -->
+<div class="cart-panel" id="cart-panel">
+    <div class="cart-header">
+        <h3><i class="fas fa-shopping-basket"></i> Səbətiniz</h3>
+        <button class="close-cart" id="close-cart">&times;</button>
+    </div>
+    <div id="cart-list">
+        <!-- Cart items -->
+    </div>
+    <div class="cart-total">
+        <div class="cart-total-row">
+            <span>Cəmi:</span>
+            <strong id="cart-total">0.00 ₼</strong>
+        </div>
+        <button class="btn btn-primary btn-checkout" id="checkout-btn">Sifarişi
+            Tamamla
+        </button>
+    </div>
+</div>
+
+<!-- Book Details Modal -->
+<div class="details-overlay hidden-init" id="details-modal">
+    <div class="details-card fade-in">
+        <button class="details-close" id="close-details-btn">&times;</button>
+        <div class="details-grid">
+            <div class="details-image-section">
+                <img alt="Book Cover" id="modal-book-img" src="">
+            </div>
+            <div class="details-info-section">
+                <span class="details-badge" id="modal-book-category">KATEQORİYA</span>
+                <h2 class="details-title" id="modal-book-title">Kitab Başlığı</h2>
+                <h3 class="details-author" id="modal-book-author">Yazar Adı</h3>
+                <hr class="details-divider">
+                <div class="details-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-file-alt"></i>
+                        <span id="modal-book-pages">0</span> səhifə
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="modal-book-year">0</span> Nəşr
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-star icon-warning"></i>
+                        <span>4.8 / 5</span> Reytinq
+                    </div>
+                </div>
+                <p class="details-desc" id="modal-book-desc">
+                    Bu kitab haqqında ətraflı məlumat tezliklə əlavə olunacaq. Hər səhifədə yeni bir kəşf və
+                    heyranedici hekayə sizi gözləyir.
+                </p>
+                <div class="details-price-row">
+                    <span class="details-price" id="modal-book-price">0.00 ₼</span>
+                    <button class="btn btn-primary btn-lg" id="modal-add-cart-btn">
+                        <i class="fas fa-cart-plus"></i> Səbətə Əlavə Et
+                    </button>
                 </div>
             </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Omega | Crafted with Huseyn for readers</p>
-        </div>
-    </footer>
+    </div>
+</div>
 
-    <script src="function.js"></script>
-    
-<script src=" scripts.js\></script>
+<footer class="premium-footer">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <a class="logo" href="index.html">Ome<span>ga</span></a>
+            <p>Hər səhifədə yeni bir dünya. Ən son kitab nəşrləri və klassik əsərlər.</p>
+        </div>
+        <div class="footer-links">
+            <h4>Sürətli Keçidlər</h4>
+            <ul>
+                <li><a href="index.html">📚 Kataloq</a></li>
+                <li><a href="addbook.html">➕ Əlavə Et</a></li>
+                <li><a href="admin.html">⚙️ Admin</a></li>
+            </ul>
+        </div>
+        <div class="footer-social">
+            <h4>Sosial Şəbəkələr</h4>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-telegram"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Omega | Crafted with Huseyn for readers</p>
+    </div>
+</footer>
+
+<script src="function.js"></script>
+<script src="scripts.js"></script>
 </body>
 
 </html>

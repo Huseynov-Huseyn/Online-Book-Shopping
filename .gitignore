@@ -1,3 +1,4 @@
 # Şəkil qovluğunu ignore et
 statics/images/
 Backend/.junie
+Frontend/Main/.junie

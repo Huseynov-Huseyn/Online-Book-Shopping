@@ -3,149 +3,143 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Kitab Əlavə Et | Omega</title>
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
 </head>
 
 <body>
-    <header>
-        <div class="header-container">
-            <a href="index.html" class="logo">Ome<span>ga</span></a>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="index.html">📚 Kataloq</a></li>
-                    <li><a href="addbook.html" class="active">➕ Əlavə Et</a></li>
-                    <li><a href="admin.html">⚙️ Admin</a></li>
-                </ul>
-            </nav>
-            <div class="header-actions">
-                <button id="theme-toggle">🌙</button>
-                <button class="btn cart-btn">
-                    <i class="fas fa-shopping-cart"></i> (<span id="cart-count">0</span>)
-                </button>
-            </div>
+<header>
+    <div class="header-container">
+        <a class="logo" href="index.html">Ome<span>ga</span></a>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">📚 Kataloq</a></li>
+                <li><a class="active" href="addbook.html">➕ Əlavə Et</a></li>
+                <li><a href="admin.html">⚙️ Admin</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <button id="theme-toggle">🌙</button>
+            <button class="btn cart-btn">
+                <i class="fas fa-shopping-cart"></i> (<span id="cart-count">0</span>)
+            </button>
         </div>
-    </header>
+    </div>
+</header>
 
-    <main class="container">
-        <div class="panel fade-in" style="max-width: 800px; margin: 0 auto;">
-            <div class="section-title">
-                <i class="fas fa-plus-circle" style="color: var(--success)"></i> Yeni Kitab Paylaş
-            </div>
-            <p style="color: var(--text-muted); margin-bottom: 30px;">
-                Sevdiyiniz kitabları kitabxanaya əlavə edin və digər oxucularla paylaşın.
-            </p>
-
-            <form id="book-form">
-                <div class="form-grid">
-                    <div class="input-group">
-                        <label for="title">Kitabın Adı *</label>
-                        <input type="text" id="title" value="The Valley of Fear" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="author">Müəllif *</label>
-                        <input type="text" id="author" value="Sir Arthur Conan Doyle" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="category-select">Kateqoriya *</label>
-                        <select id="category-select" required>
-                            <option value="Dedektiv" selected>🔍 Dedektiv</option>
-                            <option value="Bədii">🎨 Bədii</option>
-                            <option value="Elmi">🔬 Elmi</option>
-                            <option value="Tarix">📖 Tarix</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label for="pages">Səhifə Sayı *</label>
-                        <input type="number" id="pages" value="180" min="1" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="year">Nəşr İli *</label>
-                        <input type="number" id="year" value="1915" min="1500" max="2099" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="price">Qiymət (₼) *</label>
-                        <input type="number" id="price" value="18.50" step="0.01" min="0" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="stockQuantity">Stok Sayı *</label>
-                        <input type="number" id="stockQuantity" value="10" min="0" required>
-                    </div>
-                </div>
-
-                <div
-                    style="margin-top: 30px; padding: 30px; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 2px dashed var(--border);">
-                    <label for="book-image"
-                        style="display: block; font-weight: 600; margin-bottom: 15px; cursor: pointer;">
-                        <i class="fas fa-cloud-upload-alt" style="margin-right: 10px;"></i> Kitabın Üz Qabığı (İstəyə
-                        bağlı)
-                    </label>
-                    <input type="file" id="book-image" accept="image/*" style="width: 100%;">
-
-                    <div id="image-preview" style="display: none; margin-top: 20px; text-align: center;">
-                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Seçilmiş Şəkil:</p>
-                        <img id="preview-img" src="" alt="Önizləmə"
-                            style="max-width: 200px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg);"
-                            onerror="handleImageError(this)">
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 40px;">
-                    <button type="submit" class="btn btn-primary">✅ Təsdiqlə və Əlavə Et</button>
-                    <button type="reset" class="btn btn-secondary">🔄 Formu Təmizlə</button>
-                </div>
-            </form>
+<main class="container">
+    <div class="panel fade-in panel-centered">
+        <div class="section-title">
+            <i class="fas fa-plus-circle icon-success"></i> Yeni Kitab Paylaş
         </div>
+        <p class="section-desc">
+            Sevdiyiniz kitabları kitabxanaya əlavə edin və digər oxucularla paylaşın.
+        </p>
 
-        <section id="recent-books" style="margin-top: 60px;" class="fade-in">
-            <div class="section-title" style="font-size: 1.5rem;">
-                <i class="fas fa-history" style="color: var(--primary)"></i> Son Əlavə Edilənlər
-            </div>
-            <div id="book-list" class="books-grid">
-                <!-- Recent books will be injected here -->
-            </div>
-        </section>
-    </main>
-
-    <footer class="premium-footer">
-        <div class="footer-container">
-            <div class="footer-brand">
-                <a href="index.html" class="logo">Ome<span>ga</span></a>
-                <p>Hər səhifədə yeni bir dünya. Ən son kitab nəşrləri və klassik əsərlər.</p>
-            </div>
-            <div class="footer-links">
-                <h4>Sürətli Keçidlər</h4>
-                <ul>
-                    <li><a href="index.html">📚 Kataloq</a></li>
-                    <li><a href="addbook.html">➕ Əlavə Et</a></li>
-                    <li><a href="admin.html">⚙️ Admin</a></li>
-                </ul>
-            </div>
-            <div class="footer-social">
-                <h4>Sosial Şəbəkələr</h4>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-telegram"></i></a>
+        <form id="book-form">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label for="title">Kitabın Adı *</label>
+                    <input id="title" required type="text" value="The Valley of Fear">
+                </div>
+                <div class="input-group">
+                    <label for="author">Müəllif *</label>
+                    <input id="author" required type="text" value="Sir Arthur Conan Doyle">
+                </div>
+                <div class="input-group">
+                    <label for="category-select">Kateqoriya *</label>
+                    <select id="category-select" required>
+                        <option selected value="Dedektiv">🔍 Dedektiv</option>
+                        <option value="Bədii">🎨 Bədii</option>
+                        <option value="Elmi">🔬 Elmi</option>
+                        <option value="Tarix">📖 Tarix</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="pages">Səhifə Sayı *</label>
+                    <input id="pages" min="1" required type="number" value="180">
+                </div>
+                <div class="input-group">
+                    <label for="year">Nəşr İli *</label>
+                    <input id="year" max="2099" min="1500" required type="number" value="1915">
+                </div>
+                <div class="input-group">
+                    <label for="price">Qiymət (₼) *</label>
+                    <input id="price" min="0" required step="0.01" type="number" value="18.50">
+                </div>
+                <div class="input-group">
+                    <label for="stockQuantity">Stok Sayı *</label>
+                    <input id="stockQuantity" min="0" required type="number" value="10">
                 </div>
             </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Omega | Kitabxana və Kitab Satışı Sistemi</p>
-        </div>
-    </footer>
 
-    <script src="function.js"></script>
+            <div class="upload-area">
+                <label class="upload-label" for="book-image">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i> Kitabın Üz Qabığı (İstəyə bağlı)
+                </label>
+                <input accept="image/*" class="file-input" id="book-image" type="file">
 
-<script src=\scripts.js\></script>
+                <div class="image-preview" id="image-preview">
+                    <p class="preview-text">Seçilmiş Şəkil:</p>
+                    <img alt="Önizləmə" class="preview-img" id="preview-img" src="">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit">✅ Təsdiqlə və Əlavə Et</button>
+                <button class="btn btn-secondary" type="reset">🔄 Formu Təmizlə</button>
+            </div>
+        </form>
+    </div>
+
+    <section class="recent-books fade-in" id="recent-books">
+        <div class="section-title section-title-sm">
+            <i class="fas fa-history icon-primary"></i> Son Əlavə Edilənlər
+        </div>
+        <div class="books-grid" id="book-list">
+            <!-- Recent books will be injected here -->
+        </div>
+    </section>
+</main>
+
+<footer class="premium-footer">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <a class="logo" href="index.html">Ome<span>ga</span></a>
+            <p>Hər səhifədə yeni bir dünya. Ən son kitab nəşrləri və klassik əsərlər.</p>
+        </div>
+        <div class="footer-links">
+            <h4>Sürətli Keçidlər</h4>
+            <ul>
+                <li><a href="index.html">📚 Kataloq</a></li>
+                <li><a href="addbook.html">➕ Əlavə Et</a></li>
+                <li><a href="admin.html">⚙️ Admin</a></li>
+            </ul>
+        </div>
+        <div class="footer-social">
+            <h4>Sosial Şəbəkələr</h4>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-telegram"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Omega | Kitabxana və Kitab Satışı Sistemi</p>
+    </div>
+</footer>
+
+<script src="function.js"></script>
+<script src="scripts.js"></script>
 </body>
 
 </html>

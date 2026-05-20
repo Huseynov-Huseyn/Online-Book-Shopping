@@ -8,7 +8,7 @@ const API_URL = 'http://localhost:8080/api/books';
 const API_BASE_URL = new URL(API_URL).origin;
 
 // State Management
-let state = {
+const state = {
     books: [],
     cart: [],
     isEditMode: false,
@@ -16,81 +16,74 @@ let state = {
     theme: localStorage.getItem('theme') || 'dark',
     user: JSON.parse(localStorage.getItem('user')) || null
 };
+window.state = state;
 
 // Initialization
+const initApp = () => {
+    applyTheme();
+    updateCartUI();
+    updateHeaderAuthUI();
+    applyNavigationAccess();
+
+    const path = window.location.pathname;
+    if (path.includes('index.html') || path === '/' || path.endsWith('Main/') || path.endsWith('Main')) {
+        loadBooks();
+    } else if (path.includes('admin.html')) {
+        checkConnection();
+    } else if (path.includes('addbook.html')) {
+        loadRecentBooks();
+        setupImagePreview('book-image', 'image-preview', 'preview-img');
+    }
+};
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
 } else {
     initApp();
 }
 
-function initApp() {
-    applyTheme();
-    updateCartUI();
-    updateHeaderAuthUI();
-    applyNavigationAccess();
-    
-    // Page-specific initialization
-    const path = window.location.pathname;
-    console.log('Current path:', path);
-
-    if (path.includes('index.html') || path === '/' || path.endsWith('Main/') || path.endsWith('Main')) {
-        loadBooks();
-    } else if (path.includes('admin.html')) {
-        checkConnection();
-        // Delay to ensure admin script is loaded
-        setTimeout(() => {
-            if (typeof window.loadAdminBooks === 'function') {
-                window.loadAdminBooks();
-            }
-        }, 100);
-    } else if (path.includes('addbook.html')) {
-        loadRecentBooks();
-        setupImagePreview('book-image', 'image-preview', 'preview-img');
-    }
-}
-
 // ===== UTILS =====
 
-function getImageUrl(imageUrl) {
-    if (!imageUrl) return `${API_BASE_URL}/images/placeholder.png`;
-    if (/^(https?:\/\/|data:)/.test(imageUrl)) return imageUrl;
-    const cleanUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
-    return `${API_BASE_URL}${cleanUrl}`;
-}
+const getImageUrl = (url) => {
+    if (!url) return `${API_BASE_URL}/images/placeholder.png`;
+    if (/^(https?:\/\/|data:)/.test(url)) return url;
+    return `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+window.getImageUrl = getImageUrl;
 
-function handleImageError(img) {
+const handleImageError = (img) => {
     img.src = `${API_BASE_URL}/images/placeholder.png`;
     img.onerror = null;
-}
+};
+window.handleImageError = handleImageError;
 
-function escapeHtml(text) {
+const escapeHtml = (text) => {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-}
+};
+window.escapeHtml = escapeHtml;
 
-function showToast(msg, type = 'info') {
-    const container = document.getElementById('toast-container') || createToastContainer();
+const showToast = (msg, type = 'info') => {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.innerHTML = `<span>${msg}</span>`;
     container.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(20px)';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
-}
-
-function createToastContainer() {
-    const container = document.createElement('div');
-    container.id = 'toast-container';
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-    return container;
-}
+};
+window.showToast = showToast;
 
 // ===== THEME MANAGEMENT =====
 
@@ -102,7 +95,7 @@ function applyTheme() {
         document.body.classList.remove('dark-mode');
         document.documentElement.setAttribute('data-theme', 'light');
     }
-    
+
     const themeBtn = document.getElementById('theme-toggle');
     if (themeBtn) {
         themeBtn.innerHTML = state.theme === 'dark' ? '☀️' : '🌙';
@@ -128,21 +121,21 @@ async function apiRequest(endpoint, options = {}) {
             }
         }
         const response = await fetch(endpoint, options);
-        
+
         if (!response.ok) {
             // 401 Unauthorized means token expired/invalid. 
             // 403 Forbidden means insufficient permissions (should not log out).
             if (response.status === 401) {
                 handleAuthError();
             }
-            
+
             let errData = {};
             try {
                 errData = await response.json();
             } catch (e) {
-                errData = { error: `HTTP error! status: ${response.status}` };
+                errData = {error: `HTTP error! status: ${response.status}`};
             }
-            
+
             throw new Error(errData.error || `HTTP error! status: ${response.status}`);
         }
         return await response.json();
@@ -157,9 +150,9 @@ async function loadBooks() {
     if (!bookList) return;
 
     bookList.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-    
+
     try {
-        state.books = await apiRequest(`${API_URL}/all`);
+        state.books = await apiRequest(`${API_URL}`);
         renderBooks(state.books);
         const totalCount = document.getElementById('total-count');
         if (totalCount) totalCount.textContent = state.books.length;
@@ -172,23 +165,23 @@ async function loadBooks() {
 function selectRandomSpotlightBook() {
     const spotlightCard = document.getElementById('spotlight-book-card');
     if (!spotlightCard) return;
-    
+
     if (state.books && state.books.length > 0) {
         const randomIndex = Math.floor(Math.random() * state.books.length);
         const book = state.books[randomIndex];
-        
+
         const img = document.getElementById('spotlight-img');
         const title = document.getElementById('spotlight-title');
         const author = document.getElementById('spotlight-author');
         const price = document.getElementById('spotlight-price');
-        
+
         if (img) img.src = getImageUrl(book.imageUrl);
         if (title) title.textContent = book.title;
         if (author) author.textContent = book.author;
         if (price) price.textContent = `${book.price.toFixed(2)} ₼`;
-        
+
         spotlightCard.style.display = 'block';
-        
+
         spotlightCard.onclick = () => {
             if (window.openBookDetails) {
                 window.openBookDetails(book.id);
@@ -202,9 +195,9 @@ function selectRandomSpotlightBook() {
 async function loadRecentBooks() {
     const bookList = document.getElementById('book-list');
     if (!bookList) return;
-    
+
     try {
-        const books = await apiRequest(`${API_URL}/all`);
+        const books = await apiRequest(`${API_URL}`);
         const recent = books.slice(-5).reverse();
         renderBooks(recent);
     } catch (error) {
@@ -241,7 +234,7 @@ function createBookCard(book) {
             }
         }
     };
-    
+
     const bookImage = getImageUrl(book.imageUrl);
     const price = book.price ? book.price.toFixed(2) : "0.00";
 
@@ -287,7 +280,9 @@ async function fetchServerCart() {
     try {
         const cartDto = await apiRequest(`${API_BASE_URL}/api/cart`);
         syncCartState(cartDto);
-    } catch(e) { console.error('Cart load err:', e); }
+    } catch (e) {
+        console.error('Cart load err:', e);
+    }
 }
 
 function syncCartState(cartDto) {
@@ -307,10 +302,10 @@ function syncCartState(cartDto) {
 window.addToCart = async (bookOrId) => {
     if (!state.user) {
         showToast('Səbətə əlavə etmək üçün lütfən daxil olun', 'warning');
-        if(window.openAuthModal) window.openAuthModal();
+        if (window.openAuthModal) window.openAuthModal();
         return;
     }
-    
+
     let book = bookOrId;
     if (typeof bookOrId === 'number' || typeof bookOrId === 'string') {
         book = state.books.find(b => b.id == bookOrId);
@@ -318,11 +313,15 @@ window.addToCart = async (bookOrId) => {
     if (!book) return;
 
     try {
-        const cartDto = await apiRequest(`${API_BASE_URL}/api/cart/add/${book.id}?quantity=1`, { method: 'POST' });
+        const cartDto = await apiRequest(`${API_BASE_URL}/api/cart/add/${book.id}?quantity=1`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
         syncCartState(cartDto);
         showToast("🛒 Səbətə əlavə edildi", "success");
-    } catch(e) {
-        showToast("Xəta baş verdi", "danger");
+    } catch (e) {
+        console.error('addToCart error:', e);
+        showToast(`❌ Səbətə əlavə oluna bilmədi: ${e.message || 'Naməlum xəta'}`, "danger");
     }
 };
 
@@ -331,7 +330,7 @@ function updateCartUI() {
     if (cartCount) {
         cartCount.textContent = state.cart.reduce((acc, item) => acc + item.quantity, 0);
     }
-    
+
     const cartList = document.getElementById('cart-list');
     if (cartList) {
         cartList.innerHTML = '';
@@ -349,7 +348,7 @@ function updateCartUI() {
             `;
             cartList.appendChild(li);
         });
-        
+
         const cartTotal = document.getElementById('cart-total');
         if (cartTotal) cartTotal.textContent = total.toFixed(2) + " ₼";
     }
@@ -358,9 +357,11 @@ function updateCartUI() {
 window.removeFromCart = async (id) => {
     if (!state.user) return;
     try {
-        const cartDto = await apiRequest(`${API_BASE_URL}/api/cart/remove/${id}`, { method: 'DELETE' });
+        const cartDto = await apiRequest(`${API_BASE_URL}/api/cart/remove/${id}`, {method: 'DELETE'});
         syncCartState(cartDto);
-    } catch(e) { console.error('Remove item failed', e); }
+    } catch (e) {
+        console.error('Remove item failed', e);
+    }
 };
 
 window.checkoutOrder = async () => {
@@ -369,45 +370,47 @@ window.checkoutOrder = async () => {
         window.openAuthModal();
         return;
     }
-    
+
     if (state.cart.length === 0) {
         showToast('🛒 Səbətiniz boşdur!', 'warning');
         return;
     }
-    
+
     const userId = state.user.id;
     if (!userId) {
         showToast('❌ İstifadəçi məlumatı tam deyil. Lütfən yenidən daxil olun.', 'danger');
         return;
     }
-    
+
     const items = state.cart.map(item => ({
         bookId: item.id.toString(),
         quantity: item.quantity
     }));
-    
+
     try {
         const orderRequestData = {
             userId: userId,
             items: items
         };
-        
+
         const responseData = await apiRequest(`${API_BASE_URL}/api/orders`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(orderRequestData)
         });
-        
+
         if (responseData && responseData.id) {
             showToast('🎉 Sifarişiniz uğurla qəbul edildi!', 'success');
-            
+
             // Səbəti backend-dən təmizlə
             try {
-                await apiRequest(`${API_BASE_URL}/api/cart/clear`, { method: 'DELETE' });
+                await apiRequest(`${API_BASE_URL}/api/cart/clear`, {method: 'DELETE'});
                 state.cart = [];
                 updateCartUI();
-            } catch(e) { console.error('Cart clear failed', e); }
-            
+            } catch (e) {
+                console.error('Cart clear failed', e);
+            }
+
             // Close cart panel if open
             const cartPanel = document.getElementById('cart-panel');
             if (cartPanel) cartPanel.classList.remove('open');
@@ -459,9 +462,10 @@ window.applyFiltersAndSort = () => {
 async function checkConnection() {
     const statusEl = document.getElementById('status');
     if (!statusEl) return;
-    
+
     try {
-        await fetch(`${API_URL}/health`);
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error();
         statusEl.className = 'status connected';
         statusEl.textContent = '🟢 Backend Aktiv';
     } catch {
@@ -522,7 +526,7 @@ window.submitBookForm = async (bookData, imageFile) => {
     try {
         const savedBook = await apiRequest(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(bookData)
         });
 
@@ -531,12 +535,12 @@ window.submitBookForm = async (bookData, imageFile) => {
                 await uploadImageToBackend(savedBook.id, imageFile);
             }
             showToast('✅ Kitab uğurla əlavə edildi', 'success');
-            return { success: true };
+            return {success: true};
         }
-        return { success: false, message: 'Xəta baş verdi' };
+        return {success: false, message: 'Xəta baş verdi'};
     } catch (error) {
         showToast('❌ Kitab əlavə edilərkən xəta baş verdi', 'danger');
-        return { success: false };
+        return {success: false};
     }
 };
 
@@ -560,21 +564,21 @@ window.updateAdminBook = async (id, data) => {
     try {
         const response = await apiRequest(`${API_URL}/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
         });
         showToast('✅ Yeniləndi', 'success');
-        return { success: true };
+        return {success: true};
     } catch (error) {
         showToast('❌ Yeniləmə xətası', 'danger');
-        return { success: false };
+        return {success: false};
     }
 };
 
 // ===== AUTHENTICATION & SECURITY SYSTEM =====
 
 function saveUserSession(token, username, role, id) {
-    state.user = { token, username, role, id };
+    state.user = {token, username, role, id};
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(state.user));
     updateHeaderAuthUI();
@@ -591,11 +595,15 @@ function clearUserSession() {
 
 function getFriendlyRole(role) {
     switch (role) {
-        case 'ROLE_ADMIN': return 'Admin';
-        case 'ROLE_SATICI': return 'Satıcı';
+        case 'ROLE_ADMIN':
+            return 'Admin';
+        case 'ROLE_SATICI':
+            return 'Satıcı';
         case 'ROLE_USER':
-        case 'ROLE_ALICI': return 'Alıcı';
-        default: return role;
+        case 'ROLE_ALICI':
+            return 'Alıcı';
+        default:
+            return role;
     }
 }
 
@@ -658,7 +666,7 @@ window.switchAuthTab = (tab) => {
     const registerForm = document.getElementById('register-form');
     const loginTab = document.getElementById('tab-login-btn');
     const registerTab = document.getElementById('tab-register-btn');
-    
+
     if (tab === 'login') {
         loginForm.classList.add('active');
         registerForm.classList.remove('active');
@@ -675,7 +683,7 @@ window.switchAuthTab = (tab) => {
 function showAuthAnimation(type, username, role) {
     const existing = document.getElementById('auth-animation-overlay');
     if (existing) existing.remove();
-    
+
     let html = '';
     if (type === 'login') {
         html = `
@@ -710,14 +718,14 @@ function showAuthAnimation(type, username, role) {
         </div>
         `;
     }
-    
+
     document.body.insertAdjacentHTML('beforeend', html);
     const overlay = document.getElementById('auth-animation-overlay');
-    
+
     // Trigger reflow to start transition
     overlay.offsetHeight;
     overlay.classList.add('active');
-    
+
     return new Promise(resolve => {
         setTimeout(() => {
             overlay.classList.remove('active');
@@ -733,28 +741,28 @@ window.handleLoginSubmit = async (e) => {
     e.preventDefault();
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, password})
         });
-        
+
         if (!response.ok) {
             const errData = await response.json();
             showToast('❌ Giriş uğursuzdur: ' + (errData.error || 'Username və ya şifrə yanlışdır'), 'danger');
             return;
         }
-        
+
         const data = await response.json();
         closeAuthModal();
-        
+
         // Play login success animation
         await showAuthAnimation('login', data.username, data.role);
-        
+
         saveUserSession(data.token, data.username, data.role, data.id);
-        
+
         const path = window.location.pathname;
         if (path.includes('admin.html') || path.includes('addbook.html')) {
             window.location.reload();
@@ -769,28 +777,28 @@ window.handleRegisterSubmit = async (e) => {
     e.preventDefault();
     const username = document.getElementById('register-username').value;
     const password = document.getElementById('register-password').value;
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, password})
         });
-        
+
         if (!response.ok) {
             const errData = await response.json();
             showToast('❌ Qeydiyyat xətası: ' + (errData.error || 'İstifadəçi adı artıq mövcud ola bilər'), 'danger');
             return;
         }
-        
+
         const data = await response.json();
         closeAuthModal();
-        
+
         // Play login success animation
         await showAuthAnimation('login', data.username, data.role);
-        
+
         saveUserSession(data.token, data.username, data.role, data.id);
-        
+
         const path = window.location.pathname;
         if (path.includes('admin.html') || path.includes('addbook.html')) {
             window.location.reload();
@@ -804,16 +812,16 @@ window.handleRegisterSubmit = async (e) => {
 function updateHeaderAuthUI() {
     const actionsContainer = document.querySelector('.header-actions');
     if (!actionsContainer) return;
-    
+
     const existingAuth = actionsContainer.querySelector('.header-auth-section');
     if (existingAuth) existingAuth.remove();
-    
+
     const authDiv = document.createElement('div');
     authDiv.className = 'header-auth-section';
     authDiv.style.display = 'flex';
     authDiv.style.alignItems = 'center';
     authDiv.style.gap = '10px';
-    
+
     if (state.user) {
         fetchServerCart();
         authDiv.innerHTML = `
@@ -839,17 +847,17 @@ function updateHeaderAuthUI() {
             </button>
         `;
     }
-    
+
     actionsContainer.insertBefore(authDiv, actionsContainer.firstChild);
 }
 
 window.logoutUser = async () => {
     // Play logout animation first
     await showAuthAnimation('logout');
-    
+
     clearUserSession();
     showToast('🚪 Hesabdan çıxış edildi', 'info');
-    
+
     const path = window.location.pathname;
     if (!path.includes('index.html') && path !== '/' && !path.endsWith('Main/') && !path.endsWith('Main')) {
         window.location.href = 'index.html';
@@ -859,23 +867,23 @@ window.logoutUser = async () => {
 function applyNavigationAccess() {
     const navLinks = document.querySelector('.nav-links');
     if (!navLinks) return;
-    
+
     const isSaticiOrAdmin = state.user && (state.user.role === 'ROLE_SATICI' || state.user.role === 'ROLE_ADMIN');
     const path = window.location.pathname;
-    
+
     let linksHtml = `
         <li><a href="index.html" class="${path.includes('index.html') || path === '/' || path.endsWith('Main/') || path.endsWith('Main') ? 'active' : ''}">📚 Kataloq</a></li>
     `;
-    
+
     if (isSaticiOrAdmin) {
         linksHtml += `
             <li><a href="addbook.html" class="${path.includes('addbook.html') ? 'active' : ''}">➕ Əlavə Et</a></li>
             <li><a href="admin.html" class="${path.includes('admin.html') ? 'active' : ''}">⚙️ Admin</a></li>
         `;
     }
-    
+
     navLinks.innerHTML = linksHtml;
-    
+
     // Route guards
     if (path.includes('admin.html') && !isSaticiOrAdmin) {
         window.location.href = 'index.html';
@@ -918,26 +926,26 @@ window.openOrdersModal = async () => {
         return;
     }
     ensureOrdersModal();
-    
+
     const container = document.getElementById('user-orders-list');
     if (!container) return;
-    
+
     container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
     document.getElementById('orders-modal').classList.add('active');
-    
+
     try {
         const orders = await apiRequest(`${API_BASE_URL}/api/orders/user/${state.user.id}`);
         if (!orders || orders.length === 0) {
             container.innerHTML = '<div class="empty" style="text-align: center; padding: 30px; color: var(--text-muted);">📦 Hələ ki heç bir sifarişiniz yoxdur.</div>';
             return;
         }
-        
+
         container.innerHTML = orders.map(order => {
             const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleString('az-AZ') : 'Bilinmir';
             const orderBooks = order.items && order.items.length > 0
                 ? order.items.map(item => `<div class="user-order-book-item">📖 ${escapeHtml(item.title)} (${item.quantity} ədəd) - ${item.unitPrice.toFixed(2)} ₼</div>`).join('')
                 : 'Kitab yoxdur';
-            
+
             let statusBadgeColor = 'background: rgba(245, 158, 11, 0.1); color: var(--warning);';
             let statusText = 'Gözləyir';
             if (order.status === 'COMPLETED') {
@@ -947,7 +955,7 @@ window.openOrdersModal = async () => {
                 statusBadgeColor = 'background: rgba(239, 68, 68, 0.1); color: var(--danger);';
                 statusText = 'Ləğv edildi';
             }
-            
+
             return `
                 <div class="user-order-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -1006,17 +1014,17 @@ window.openProfileModal = async () => {
         return;
     }
     ensureProfileModal();
-    
+
     const container = document.getElementById('user-profile-details');
     if (!container) return;
-    
+
     document.getElementById('profile-modal').classList.add('active');
-    
+
     // Backenddə /api/users/{username} endpointinin SecurityConfig-i "Ant pattern" əvəzinə
     // literal "{username}" stringini axtardığı üçün normal istifadəçilərə 403 xətası verir.
     // Buna görə məlumatları birbaşa state (localStorage) üzərindən oxuyuruq.
     const userDetails = state.user;
-    
+
     container.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 15px;">
             <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
@@ -1040,4 +1048,187 @@ window.openProfileModal = async () => {
 window.closeProfileModal = () => {
     const modal = document.getElementById('profile-modal');
     if (modal) modal.classList.remove('active');
-};
+};
+
+// ===== BOOK DETAILS MODAL =====
+window.openBookDetails = async (bookId) => {
+    const modal = document.getElementById('details-modal');
+    if (!modal) return;
+
+    let book = state.books.find(b => b.id == bookId);
+    if (!book) {
+        try {
+            book = await apiRequest(`${API_URL}/${bookId}`);
+        } catch (e) {
+            showToast('❌ Kitab məlumatı yüklənə bilmədi', 'danger');
+            return;
+        }
+    }
+    if (!book) return;
+
+    const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    };
+    const img = document.getElementById('modal-book-img');
+    if (img) {
+        img.src = getImageUrl(book.imageUrl);
+        img.onerror = () => handleImageError(img);
+    }
+    set('modal-book-category', book.category || '');
+    set('modal-book-title', book.title || '');
+    set('modal-book-author', book.author || '');
+    set('modal-book-pages', book.pages || 0);
+    set('modal-book-year', book.year || 0);
+    set('modal-book-price', `${(book.price || 0).toFixed(2)} ₼`);
+    const desc = document.getElementById('modal-book-desc');
+    if (desc) desc.textContent = book.description ||
+        'Bu kitab haqqında ətraflı məlumat tezliklə əlavə olunacaq.';
+
+    const addBtn = document.getElementById('modal-add-cart-btn');
+    if (addBtn) addBtn.onclick = () => window.addToCart(book);
+
+    modal.style.display = 'flex';
+};
+
+// ===== ADMIN PANEL =====
+window.loadAdminBooks = async () => {
+    const container = document.getElementById('admin-books-container');
+    if (!container) return;
+    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+    const search = document.getElementById('admin-search')?.value || '';
+    const category = document.getElementById('admin-category-filter')?.value || '';
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (category) params.append('category', category);
+
+    try {
+        const queryStr = params.toString() ? `?${params.toString()}` : '';
+        const books = await apiRequest(`${API_URL}${queryStr}`);
+
+        const totalEl = document.getElementById('total-books');
+        if (totalEl) totalEl.textContent = books.length;
+
+        if (!books || books.length === 0) {
+            container.innerHTML = '<div class="empty">📚 Heç bir kitab tapılmadı</div>';
+            return;
+        }
+
+        let html = `<table class="admin-table"><thead><tr>
+            <th>Şəkil</th><th>Ad</th><th>Müəllif</th><th>Kateqoriya</th>
+            <th>Qiymət</th><th>Stok</th><th>Əməliyyat</th></tr></thead><tbody>`;
+        books.forEach(b => {
+            html += `<tr>
+                <td><img src="${getImageUrl(b.imageUrl)}" onerror="handleImageError(this)" style="width:50px;height:65px;object-fit:cover;border-radius:6px"></td>
+                <td>${escapeHtml(b.title)}</td>
+                <td>${escapeHtml(b.author)}</td>
+                <td><span class="badge">${escapeHtml(b.category)}</span></td>
+                <td>${(b.price || 0).toFixed(2)} ₼</td>
+                <td>${b.stockQuantity || 0}</td>
+                <td>
+                    <button class="btn btn-secondary btn-edit-book" data-id="${b.id}">✏️</button>
+                    <button class="btn btn-secondary btn-delete-book" data-id="${b.id}">🗑️</button>
+                </td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+
+        container.querySelectorAll('.btn-edit-book').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const book = books.find(x => x.id == btn.dataset.id);
+                if (book) window.openEditModal(book);
+            });
+        });
+        container.querySelectorAll('.btn-delete-book').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!confirm('Bu kitabı silmək istədiyinizə əminsiniz?')) return;
+                try {
+                    await apiRequest(`${API_URL}/${btn.dataset.id}`, {method: 'DELETE'});
+                    showToast('🗑️ Kitab silindi', 'success');
+                    window.loadAdminBooks();
+                } catch (e) {
+                    showToast('❌ Silinmə xətası', 'danger');
+                }
+            });
+        });
+    } catch (e) {
+        container.innerHTML = '<div class="empty">❌ Kitablar yüklənə bilmədi</div>';
+    }
+};
+
+window.loadAdminUsers = async () => {
+    const container = document.getElementById('admin-users-container');
+    if (!container) return;
+    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    try {
+        const users = await apiRequest(`${API_BASE_URL}/api/users`);
+        if (!users || users.length === 0) {
+            container.innerHTML = '<div class="empty">👥 İstifadəçi yoxdur</div>';
+            return;
+        }
+        let html = `<table class="admin-table"><thead><tr>
+            <th>ID</th><th>İstifadəçi adı</th><th>Rol</th><th>Email</th><th>Tam ad</th></tr></thead><tbody>`;
+        users.forEach(u => {
+            html += `<tr>
+                <td>${u.id}</td>
+                <td>@${escapeHtml(u.username)}</td>
+                <td><span class="badge">${getFriendlyRole(u.role)}</span></td>
+                <td>${escapeHtml(u.email || '-')}</td>
+                <td>${escapeHtml(u.fullName || '-')}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    } catch (e) {
+        container.innerHTML = '<div class="empty">❌ İstifadəçilər yüklənə bilmədi (Yalnız Admin)</div>';
+    }
+};
+
+window.loadAdminOrders = async () => {
+    const container = document.getElementById('admin-orders-container');
+    if (!container) return;
+    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    try {
+        const orders = await apiRequest(`${API_BASE_URL}/api/orders`);
+        if (!orders || orders.length === 0) {
+            container.innerHTML = '<div class="empty">📦 Sifariş yoxdur</div>';
+            return;
+        }
+        let html = `<table class="admin-table"><thead><tr>
+            <th>ID</th><th>İstifadəçi</th><th>Məbləğ</th><th>Status</th><th>Tarix</th><th>Əməliyyat</th></tr></thead><tbody>`;
+        orders.forEach(o => {
+            const date = o.createdAt ? new Date(o.createdAt).toLocaleString('az-AZ') : '-';
+            html += `<tr>
+                <td>#${o.id}</td>
+                <td>${escapeHtml(o.username || ('User#' + o.userId))}</td>
+                <td><strong>${(o.totalPrice || 0).toFixed(2)} ₼</strong></td>
+                <td><span class="badge">${escapeHtml(o.status || 'PENDING')}</span></td>
+                <td>${date}</td>
+                <td>
+                    <select class="order-status-select" data-id="${o.id}">
+                        <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>Gözləyir</option>
+                        <option value="COMPLETED" ${o.status === 'COMPLETED' ? 'selected' : ''}>Tamamlandı</option>
+                        <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>Ləğv edildi</option>
+                    </select>
+                </td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+
+        container.querySelectorAll('.order-status-select').forEach(sel => {
+            sel.addEventListener('change', async () => {
+                try {
+                    await apiRequest(`${API_BASE_URL}/api/orders/${sel.dataset.id}/status?status=${sel.value}`, {method: 'PUT'});
+                    showToast('✅ Status yeniləndi', 'success');
+                } catch (e) {
+                    showToast('❌ Status yenilənə bilmədi', 'danger');
+                }
+            });
+        });
+    } catch (e) {
+        container.innerHTML = '<div class="empty">❌ Sifarişlər yüklənə bilmədi</div>';
+    }
+};

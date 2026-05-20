@@ -3,195 +3,183 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Admin Panel | Omega</title>
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .admin-table th, .admin-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
-        .admin-table th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
-        .admin-table tr:hover { background: rgba(255, 255, 255, 0.02); }
-        
-        /* Modal Styles */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: none; overflow-y: auto; }
-        .modal-content { background: var(--bg-card); width: 90%; max-width: 600px; margin: 50px auto; padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border); position: relative; max-height: 90vh; overflow-y: auto; }
-        .modal-close { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-muted); z-index: 10; }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
 </head>
 
 <body>
-    <header>
-        <div class="header-container">
-            <a href="index.html" class="logo">Ome<span>ga</span></a>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="index.html">📚 Kataloq</a></li>
-                    <li><a href="addbook.html">➕ Əlavə Et</a></li>
-                    <li><a href="admin.html" class="active">⚙️ Admin</a></li>
-                </ul>
-            </nav>
-            <div class="header-actions">
-                <button id="theme-toggle">🌙</button>
-            </div>
+<header>
+    <div class="header-container">
+        <a class="logo" href="index.html">Ome<span>ga</span></a>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">📚 Kataloq</a></li>
+                <li><a href="addbook.html">➕ Əlavə Et</a></li>
+                <li><a class="active" href="admin.html">⚙️ Admin</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <button id="theme-toggle">🌙</button>
         </div>
-    </header>
+    </div>
+</header>
 
-    <main class="container">
-        <div class="stats-grid fade-in" style="margin-bottom: 40px;">
-            <div class="stat-card">
-                <i class="fas fa-book" style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px;"></i>
-                <span class="stat-label">Bazada Cəmi Kitab</span>
-                <span class="stat-value" id="total-books">0</span>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-server" style="color: var(--success); font-size: 1.5rem; margin-bottom: 10px;"></i>
-                <span class="stat-label">Sistem Statusu</span>
-                <div id="status" class="status" style="margin: 0; padding: 5px 15px; font-size: 0.8rem;">Yoxlanılır...</div>
-            </div>
+<main class="container">
+    <div class="stats-grid fade-in stats-margin">
+        <div class="stat-card">
+            <i class="fas fa-book stat-icon-primary"></i>
+            <span class="stat-label">Bazada Cəmi Kitab</span>
+            <span class="stat-value" id="total-books">0</span>
         </div>
-
-        <div class="admin-tabs fade-in" style="margin-bottom: 20px;">
-            <button class="admin-tab-btn active" id="tab-books" onclick="switchAdminTab('books')">📚 Kitablar</button>
-            <button class="admin-tab-btn" id="tab-users" onclick="switchAdminTab('users')">👥 İstifadəçilər</button>
-            <button class="admin-tab-btn" id="tab-orders" onclick="switchAdminTab('orders')">📦 Sifarişlər</button>
-        </div>
-
-        <div class="panel fade-in" id="books-panel">
-            <div class="section-title">
-                <i class="fas fa-tools" style="color: var(--primary)"></i> Kitabların İdarəedilməsi
-            </div>
-
-            <div class="controls" style="margin-bottom: 30px;">
-                <div class="search-wrapper">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="admin-search" placeholder="Axtarış..." onkeyup="adminSearchBooks()">
-                </div>
-                <select id="admin-category-filter" onchange="adminSearchBooks()">
-                    <option value="">Bütün Kateqoriyalar</option>
-                    <option value="Bədii">🎨 Bədii</option>
-                    <option value="Elmi">🔬 Elmi</option>
-                    <option value="Tarix">📖 Tarix</option>
-                    <option value="Dedektiv">🔍 Dedektiv</option>
-                </select>
-                <button class="btn btn-secondary" onclick="loadAdminBooks()">📋 Yenilə</button>
-            </div>
-
-            <div id="admin-books-container">
-                <!-- Admin table will be injected here -->
-            </div>
-        </div>
-
-        <div class="panel fade-in" id="users-panel" style="display: none;">
-            <div class="section-title">
-                <i class="fas fa-users" style="color: var(--primary)"></i> İstifadəçilərin Siyahısı
-            </div>
-
-            <div id="admin-users-container">
-                <!-- Admin users table will be injected here -->
-            </div>
-        </div>
-
-        <div class="panel fade-in" id="orders-panel" style="display: none;">
-            <div class="section-title">
-                <i class="fas fa-box-open" style="color: var(--primary)"></i> Sifarişlərin İdarəedilməsi
-            </div>
-
-            <div id="admin-orders-container">
-                <!-- Admin orders table will be injected here -->
-            </div>
-        </div>
-    </main>
-
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeEditModal()">&times;</span>
-            <div class="section-title" style="font-size: 1.5rem;">✏️ Kitabı Redaktə Et</div>
-            
-            <form id="admin-edit-form">
-                <input type="hidden" id="edit-book-id">
-                <div class="form-grid">
-                    <div class="input-group">
-                        <label>Kitabın Adı</label>
-                        <input type="text" id="edit-title" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Müəllif</label>
-                        <input type="text" id="edit-author" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Kateqoriya</label>
-                        <select id="edit-category" required>
-                            <option value="Bədii">Bədii</option>
-                            <option value="Elmi">Elmi</option>
-                            <option value="Tarix">Tarix</option>
-                            <option value="Dedektiv">Dedektiv</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Səhifə</label>
-                        <input type="number" id="edit-pages" required>
-                    </div>
-                    <div class="input-group">
-                        <label>İl</label>
-                        <input type="number" id="edit-year" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Qiymət</label>
-                        <input type="number" id="edit-price" step="0.01" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Stok Sayı</label>
-                        <input type="number" id="edit-stockQuantity" min="0" required>
-                    </div>
-                </div>
-
-                <div style="margin-top: 25px; display: flex; gap: 10px;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1;">Yadda Saxla</button>
-                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeEditModal()">Ləğv Et</button>
-                </div>
-            </form>
+        <div class="stat-card">
+            <i class="fas fa-server stat-icon-success"></i>
+            <span class="stat-label">Sistem Statusu</span>
+            <div class="status status-inline" id="status">Yoxlanılır...</div>
         </div>
     </div>
 
-    <footer class="premium-footer">
-        <div class="footer-container">
-            <div class="footer-brand">
-                <a href="index.html" class="logo">Ome<span>ga</span></a>
-                <p>Hər səhifədə yeni bir dünya. Ən son kitab nəşrləri və klassik əsərlər.</p>
+    <div class="admin-tabs fade-in tabs-margin">
+        <button class="admin-tab-btn active" id="tab-books">📚 Kitablar</button>
+        <button class="admin-tab-btn" id="tab-users">👥 İstifadəçilər</button>
+        <button class="admin-tab-btn" id="tab-orders">📦 Sifarişlər</button>
+    </div>
+
+    <div class="panel fade-in" id="books-panel">
+        <div class="section-title">
+            <i class="fas fa-tools icon-primary"></i> Kitabların İdarəedilməsi
+        </div>
+
+        <div class="controls controls-margin">
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input id="admin-search" placeholder="Axtarış..." type="text">
             </div>
-            <div class="footer-links">
-                <h4>Sürətli Keçidlər</h4>
-                <ul>
-                    <li><a href="index.html">📚 Kataloq</a></li>
-                    <li><a href="addbook.html">➕ Əlavə Et</a></li>
-                    <li><a href="admin.html">⚙️ Admin</a></li>
-                </ul>
-            </div>
-            <div class="footer-social">
-                <h4>Sosial Şəbəkələr</h4>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-telegram"></i></a>
+            <select id="admin-category-filter">
+                <option value="">Bütün Kateqoriyalar</option>
+                <option value="Bədii">🎨 Bədii</option>
+                <option value="Elmi">🔬 Elmi</option>
+                <option value="Tarix">📖 Tarix</option>
+                <option value="Dedektiv">🔍 Dedektiv</option>
+            </select>
+            <button class="btn btn-secondary" id="refresh-admin-books">📋 Yenilə</button>
+        </div>
+
+        <div id="admin-books-container">
+            <!-- Admin table will be injected here -->
+        </div>
+    </div>
+
+    <div class="panel fade-in hidden-init" id="users-panel">
+        <div class="section-title">
+            <i class="fas fa-users icon-primary"></i> İstifadəçilərin Siyahısı
+        </div>
+
+        <div id="admin-users-container">
+            <!-- Admin users table will be injected here -->
+        </div>
+    </div>
+
+    <div class="panel fade-in hidden-init" id="orders-panel">
+        <div class="section-title">
+            <i class="fas fa-box-open icon-primary"></i> Sifarişlərin İdarəedilməsi
+        </div>
+
+        <div id="admin-orders-container">
+            <!-- Admin orders table will be injected here -->
+        </div>
+    </div>
+</main>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+    <div class="modal-content">
+        <span class="modal-close" id="close-edit-modal">&times;</span>
+        <div class="section-title section-title-lg">✏️ Kitabı Redaktə Et</div>
+
+        <form id="admin-edit-form">
+            <input id="edit-book-id" type="hidden">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Kitabın Adı</label>
+                    <input id="edit-title" required type="text">
+                </div>
+                <div class="input-group">
+                    <label>Müəllif</label>
+                    <input id="edit-author" required type="text">
+                </div>
+                <div class="input-group">
+                    <label>Kateqoriya</label>
+                    <select id="edit-category" required>
+                        <option value="Bədii">Bədii</option>
+                        <option value="Elmi">Elmi</option>
+                        <option value="Tarix">Tarix</option>
+                        <option value="Dedektiv">Dedektiv</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Səhifə</label>
+                    <input id="edit-pages" required type="number">
+                </div>
+                <div class="input-group">
+                    <label>İl</label>
+                    <input id="edit-year" required type="number">
+                </div>
+                <div class="input-group">
+                    <label>Qiymət</label>
+                    <input id="edit-price" required step="0.01" type="number">
+                </div>
+                <div class="input-group">
+                    <label>Stok Sayı</label>
+                    <input id="edit-stockQuantity" min="0" required type="number">
                 </div>
             </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Omega | Admin Panel | Premium Management</p>
-        </div>
-    </footer>
 
-    <script src="function.js"></script>
-    
-<script src=\scripts.js\></script>
+            <div class="form-actions-admin">
+                <button class="btn btn-primary btn-flex" type="submit">Yadda Saxla</button>
+                <button class="btn btn-secondary btn-flex" id="cancel-edit-btn" type="button">Ləğv Et</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer class="premium-footer">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <a class="logo" href="index.html">Ome<span>ga</span></a>
+            <p>Hər səhifədə yeni bir dünya. Ən son kitab nəşrləri və klassik əsərlər.</p>
+        </div>
+        <div class="footer-links">
+            <h4>Sürətli Keçidlər</h4>
+            <ul>
+                <li><a href="index.html">📚 Kataloq</a></li>
+                <li><a href="addbook.html">➕ Əlavə Et</a></li>
+                <li><a href="admin.html">⚙️ Admin</a></li>
+            </ul>
+        </div>
+        <div class="footer-social">
+            <h4>Sosial Şəbəkələr</h4>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-telegram"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Omega | Admin Panel | Premium Management</p>
+    </div>
+</footer>
+
+<script src="function.js"></script>
+<script src="scripts.js"></script>
 </body>
 
 </html>

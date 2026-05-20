@@ -74,6 +74,257 @@ body {
     border-radius: 10px;
 }
 
+/* Helper Classes for Clean HTML */
+.fade-in {
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+.stats-margin {
+    margin-bottom: 40px;
+}
+
+.tabs-margin {
+    margin-bottom: 20px;
+}
+
+.controls-margin {
+    margin-bottom: 30px;
+}
+
+.panel-centered {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.section-desc {
+    color: var(--text-muted);
+    margin-bottom: 30px;
+}
+
+.icon-success {
+    color: var(--success);
+}
+
+.icon-primary {
+    color: var(--primary);
+}
+
+.icon-warning {
+    color: var(--warning);
+}
+
+.hidden-init {
+    display: none;
+}
+
+.stat-icon-primary {
+    color: var(--primary);
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.stat-icon-success {
+    color: var(--success);
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.status-inline {
+    margin: 0;
+    padding: 5px 15px;
+    font-size: 0.8rem;
+}
+
+.widget-desc {
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+
+.calc-inputs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.calc-inputs input, .calc-inputs select {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text-main);
+}
+
+.calc-result {
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 10px;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary);
+    color: var(--text-main);
+}
+
+.cart-total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.btn-checkout {
+    width: 100%;
+    padding: 15px;
+}
+
+.upload-area {
+    margin-top: 30px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--border);
+}
+
+.upload-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.upload-icon {
+    margin-right: 10px;
+}
+
+.file-input {
+    width: 100%;
+}
+
+.image-preview {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.preview-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+}
+
+.preview-img {
+    max-width: 200px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+}
+
+.form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 40px;
+}
+
+.recent-books {
+    margin-top: 60px;
+}
+
+.section-title-sm {
+    font-size: 1.5rem;
+}
+
+.section-title-lg {
+    font-size: 1.5rem;
+}
+
+.form-actions-admin {
+    margin-top: 25px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-flex {
+    flex: 1;
+}
+
+/* Admin Table Styles */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.admin-table th, .admin-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-table th {
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.admin-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+    display: none;
+    overflow-y: auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: var(--bg-card);
+    width: 90%;
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-muted);
+    z-index: 10;
+}
+
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary-hover);
 }
@@ -1415,7 +1666,7 @@ select:focus {
     background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(10px);
     z-index: 999;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     padding: 20px;
