@@ -8,7 +8,7 @@ public class AztuStajApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(AztuStajApplication.class, args);
-        System.out.println("==============");
+        System.out.println("========================================================");
     }
 
 }

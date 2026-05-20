@@ -42,17 +42,21 @@
                     <div class="hero-tag">🌟 Premium Onlayn Mağaza</div>
                     <h1>Hər Səhifədə <br>Yeni Bir <span class="gradient-text">Dünya Kəşf Et</span></h1>
                     <p>
-                        Ən maraqlı hekayələr, elmi tədqiqatlar, tarixi romanlar və dedektiv macəralar burada sizi gözləyir. Ruhunuzu və ağlınızı zənginləşdirin.
+                        Ən maraqlı hekayələr, elmi tədqiqatlar, tarixi romanlar və dedektiv macəralar burada sizi
+                        gözləyir. Ruhunuzu və ağlınızı zənginləşdirin.
                     </p>
                     <div class="hero-actions-row">
-                        <a href="#katalog" class="btn btn-primary btn-lg"><i class="fas fa-compass"></i> Kataloqa Keç</a>
-                        <a href="addbook.html" class="btn btn-secondary btn-lg"><i class="fas fa-plus"></i> Kitab Əlavə Et</a>
+                        <a href="#katalog" class="btn btn-primary btn-lg"><i class="fas fa-compass"></i> Kataloqa
+                            Keç</a>
+                        <a href="addbook.html" class="btn btn-secondary btn-lg"><i class="fas fa-plus"></i> Kitab Əlavə
+                            Et</a>
                     </div>
                 </div>
                 <div class="hero-spotlight">
                     <div class="spotlight-card" id="spotlight-book-card" style="display: none;">
                         <div class="spotlight-badge"><i class="fas fa-award"></i> Günün Seçimi</div>
-                        <img src="" alt="Featured Book" class="spotlight-img" id="spotlight-img" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop'">
+                        <img src="" alt="Featured Book" class="spotlight-img" id="spotlight-img"
+                            onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop'">
                         <div class="spotlight-info">
                             <h3 id="spotlight-title">Yüklənir...</h3>
                             <p id="spotlight-author"></p>
@@ -78,17 +82,21 @@
                 <div class="widget-icon"><i class="fas fa-book-reader"></i></div>
                 <h3>📚 Kitab Oxu Müddəti Təxmini</h3>
                 <p style="font-size: 0.85rem; margin-bottom: 12px; line-height: 1.4; color: var(--text-muted);">
-                    Səhifə sayını daxil edin. Gündəlik <strong>1 saat</strong> oxumaqla bu kitabı neçə günə bitirəcəyinizi hesablayın.
+                    Səhifə sayını daxil edin. Gündəlik <strong>1 saat</strong> oxumaqla bu kitabı neçə günə
+                    bitirəcəyinizi hesablayın.
                 </p>
                 <div class="calc-inputs" style="display: flex; gap: 10px; margin-bottom: 12px;">
-                    <input type="number" id="calc-pages" placeholder="Səhifə sayı" min="1" value="250" oninput="calculateReadingTime()" style="flex: 1; padding: 10px; border-radius: 8px;">
-                    <select id="calc-speed" onchange="calculateReadingTime()" style="flex: 1; padding: 10px; border-radius: 8px;">
+                    <input type="number" id="calc-pages" placeholder="Səhifə sayı" min="1" value="250"
+                        oninput="calculateReadingTime()" style="flex: 1; padding: 10px; border-radius: 8px;">
+                    <select id="calc-speed" onchange="calculateReadingTime()"
+                        style="flex: 1; padding: 10px; border-radius: 8px;">
                         <option value="slow">Yavaş (30 söz/dəq)</option>
                         <option value="normal" selected>Normal (45 söz/dəq)</option>
                         <option value="fast">Sürətli (60 söz/dəq)</option>
                     </select>
                 </div>
-                <div class="calc-result" id="calc-result-text" style="font-size: 0.95rem; font-weight: 600; padding: 10px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; border-left: 4px solid var(--primary); color: var(--text-main);">
+                <div class="calc-result" id="calc-result-text"
+                    style="font-size: 0.95rem; font-weight: 600; padding: 10px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; border-left: 4px solid var(--primary); color: var(--text-main);">
                     Təxmini oxu vaxtı: <strong>5.0 saat</strong> (cəmi <strong>5 gün</strong>)
                 </div>
             </div>
@@ -121,7 +129,8 @@
             <div class="controls-panel">
                 <div class="search-wrapper">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Kitab adı, müəllif, kateqoriya axtar..." onkeyup="applyFiltersAndSort()">
+                    <input type="text" id="search-input" placeholder="Kitab adı, müəllif, kateqoriya axtar..."
+                        onkeyup="applyFiltersAndSort()">
                 </div>
 
                 <div class="filters-right">
@@ -163,7 +172,8 @@
                 <span>Cəmi:</span>
                 <strong id="cart-total">0.00 ₼</strong>
             </div>
-            <button class="btn btn-primary" style="width: 100%; padding: 15px;" onclick="checkoutOrder()">Sifarişi Tamamla</button>
+            <button class="btn btn-primary" style="width: 100%; padding: 15px;" onclick="checkoutOrder()">Sifarişi
+                Tamamla</button>
         </div>
     </div>
 
@@ -173,7 +183,8 @@
             <button class="details-close" onclick="closeBookDetails()">&times;</button>
             <div class="details-grid">
                 <div class="details-image-section">
-                    <img id="modal-book-img" src="" alt="Book Cover" onerror="this.src='https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&auto=format&fit=crop'">
+                    <img id="modal-book-img" src="" alt="Book Cover"
+                        onerror="this.src='https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&auto=format&fit=crop'">
                 </div>
                 <div class="details-info-section">
                     <span id="modal-book-category" class="details-badge">KATEQORİYA</span>
@@ -195,7 +206,8 @@
                         </div>
                     </div>
                     <p id="modal-book-desc" class="details-desc">
-                        Bu kitab haqqında ətraflı məlumat tezliklə əlavə olunacaq. Hər səhifədə yeni bir kəşf və heyranedici hekayə sizi gözləyir.
+                        Bu kitab haqqında ətraflı məlumat tezliklə əlavə olunacaq. Hər səhifədə yeni bir kəşf və
+                        heyranedici hekayə sizi gözləyir.
                     </p>
                     <div class="details-price-row">
                         <span id="modal-book-price" class="details-price">0.00 ₼</span>
@@ -233,7 +245,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 Omega | Crafted with ❤️ for readers</p>
+            <p>&copy; 2026 Omega | Crafted with Huseyn for readers</p>
         </div>
     </footer>
 
@@ -265,11 +277,11 @@
             const quoteDisplay = document.getElementById('quote-display');
             const quoteAuthor = document.getElementById('quote-author-display');
             const quoteCard = document.querySelector('.quote-widget');
-            
+
             if (!quoteCard) return;
             quoteCard.style.transform = 'scale(0.95)';
             quoteCard.style.opacity = '0.5';
-            
+
             setTimeout(() => {
                 const random = QUOTES[Math.floor(Math.random() * QUOTES.length)];
                 if (quoteDisplay) quoteDisplay.textContent = `"${random.text}"`;
@@ -284,22 +296,22 @@
             const pages = parseInt(document.getElementById('calc-pages').value) || 0;
             const speed = document.getElementById('calc-speed').value;
             const resultText = document.getElementById('calc-result-text');
-            
+
             if (!resultText) return;
             if (pages <= 0) {
                 resultText.innerHTML = "Lütfən doğru səhifə sayı daxil edin.";
                 return;
             }
-            
+
             const totalWords = pages * 250;
             let speedWordsPerMin = 45;
             if (speed === 'slow') speedWordsPerMin = 30;
             else if (speed === 'fast') speedWordsPerMin = 60;
-            
+
             const minutes = totalWords / speedWordsPerMin;
             const hours = (minutes / 60).toFixed(1);
             const days = Math.ceil(parseFloat(hours));
-            
+
             resultText.innerHTML = `Təxmini oxu vaxtı: <strong>${hours} saat</strong> (gündə 1 saat oxumaqla <strong>${days} gün</strong>)`;
         };
 
@@ -313,7 +325,7 @@
                     btn.classList.remove('active');
                 }
             });
-            
+
             const categorySelect = document.getElementById('filter-category');
             if (categorySelect) {
                 categorySelect.value = category;
@@ -325,15 +337,15 @@
         window.openBookDetails = (bookId) => {
             const book = state.books.find(b => b.id === bookId);
             if (!book) return;
-            
-            document.getElementById('modal-book-img').src = book.imageUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&auto=format&fit=crop';
+
+            document.getElementById('modal-book-img').src = book.imageUrl ? getImageUrl(book.imageUrl) : 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500&auto=format&fit=crop';
             document.getElementById('modal-book-category').textContent = book.category;
             document.getElementById('modal-book-title').textContent = book.title;
             document.getElementById('modal-book-author').textContent = book.author;
             document.getElementById('modal-book-pages').textContent = book.pages;
             document.getElementById('modal-book-year').textContent = book.year;
             document.getElementById('modal-book-price').textContent = `${book.price.toFixed(2)} ₼`;
-            
+
             const descMap = {
                 'Bədii': `Bu möhtəşəm bədii əsər oxucunu xəyallar aləminə və dərin hisslərə qərq edəcək. Yazarın zəngin dili və təsirli hekayəsi ilə hər bir personajın hisslərini özünüz yaşayacaqsınız.`,
                 'Elmi': `Ən son elmi araşdırmalar və kəşfləri özündə cəmləşdirən bu kitab, ətrafımızdakı dünyanı anlamaq və intellektual üfüqlərimizi genişləndirmək üçün əvəzolunmaz vəsaitdir.`,
@@ -341,13 +353,13 @@
                 'Dedektiv': `Gözlənilməz sonluqlar, sirli hadisələr və intriqalarla dolu bu dedektiv romanı son səhifəsinə qədər sizi gərginlikdə saxlayacaq. Sirri ilk kim tapacaq?`
             };
             document.getElementById('modal-book-desc').textContent = descMap[book.category] || `Bu maraqlı kitab sizi heyranedici məlumatlar və fərqli hekayələr dünyasına aparacaq. Hər səhifədə fərqli bir macəra sizi gözləyir.`;
-            
+
             const addBtn = document.getElementById('modal-add-cart-btn');
             addBtn.onclick = () => {
                 addToCart(book.id);
                 closeBookDetails();
             };
-            
+
             document.getElementById('details-modal').style.display = 'flex';
         };
 

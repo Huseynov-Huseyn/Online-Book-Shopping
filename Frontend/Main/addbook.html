@@ -80,9 +80,9 @@
                     style="margin-top: 30px; padding: 30px; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 2px dashed var(--border);">
                     <label for="book-image"
                         style="display: block; font-weight: 600; margin-bottom: 15px; cursor: pointer;">
-                        <i class="fas fa-cloud-upload-alt" style="margin-right: 10px;"></i> Kitabın Üz Qabığı *
+                        <i class="fas fa-cloud-upload-alt" style="margin-right: 10px;"></i> Kitabın Üz Qabığı (İstəyə bağlı)
                     </label>
-                    <input type="file" id="book-image" accept="image/*" required style="width: 100%;">
+                    <input type="file" id="book-image" accept="image/*" style="width: 100%;">
 
                     <div id="image-preview" style="display: none; margin-top: 20px; text-align: center;">
                         <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Seçilmiş Şəkil:</p>
@@ -144,8 +144,6 @@
             e.preventDefault();
             const imageInput = document.getElementById('book-image');
             const file = imageInput.files[0];
-
-            if (!file) return showToast('❌ Şəkil seçilməyib', 'danger');
 
             const bookData = {
                 title: document.getElementById('title').value,

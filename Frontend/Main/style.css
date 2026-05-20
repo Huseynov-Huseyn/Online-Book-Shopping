@@ -14,7 +14,7 @@
     --glass: rgba(255, 255, 255, 0.7);
     --header-bg: rgba(248, 250, 252, 0.95);
     --input-bg: #f1f5f9;
-    
+
     /* Layout */
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -55,7 +55,8 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     min-height: 100vh;
-    padding-top: 70px; /* Match header height */
+    padding-top: 70px;
+    /* Match header height */
     transition: background-color 0.4s ease, color 0.4s ease;
 }
 
@@ -63,13 +64,16 @@ body {
 ::-webkit-scrollbar {
     width: 8px;
 }
+
 ::-webkit-scrollbar-track {
     background: var(--bg-dark);
 }
+
 ::-webkit-scrollbar-thumb {
     background: var(--primary);
     border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary-hover);
 }
@@ -82,7 +86,8 @@ body {
 }
 
 main {
-    padding-top: 30px; /* Additional gap from header */
+    padding-top: 30px;
+    /* Additional gap from header */
     padding-bottom: 50px;
 }
 
@@ -96,7 +101,8 @@ header {
     background: var(--header-bg);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
-    height: 70px; /* Explicit height */
+    height: 70px;
+    /* Explicit height */
     display: flex;
     align-items: center;
     transition: var(--transition);
@@ -125,7 +131,8 @@ header {
 }
 
 .logo span {
-    color: inherit; /* Ensure span doesn't break the gradient */
+    color: inherit;
+    /* Ensure span doesn't break the gradient */
 }
 
 .nav-links {
@@ -234,13 +241,15 @@ header {
     border: 1px solid var(--border);
     border-radius: 50%;
     color: var(--warning);
-    font-size: 1.4rem; /* Increased size */
+    font-size: 1.4rem;
+    /* Increased size */
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: var(--transition);
-    padding: 0; /* Ensure no padding interferes */
+    padding: 0;
+    /* Ensure no padding interferes */
     line-height: 1;
 }
 
@@ -288,7 +297,9 @@ header {
     color: var(--text-muted);
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
     background: var(--input-bg);
     border: 1px solid var(--border);
     padding: 12px 16px;
@@ -298,7 +309,8 @@ input, select, textarea {
     transition: var(--transition);
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
@@ -535,8 +547,15 @@ input:focus, select:focus {
 }
 
 @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 /* Stats Dashboard */
@@ -571,15 +590,15 @@ input:focus, select:focus {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .nav-links {
         gap: 15px;
     }
-    
+
     .books-grid {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
-    
+
     .cart-panel {
         width: 100%;
         right: -100%;
@@ -592,8 +611,15 @@ input:focus, select:focus {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ===== AUTH STYLES ===== */
@@ -890,48 +916,102 @@ input:focus, select:focus {
 }
 
 .auth-anim-overlay.active .sparkles span:nth-child(1) {
-    top: 20%; left: 20%; background: var(--secondary);
-    --x: -60px; --y: -60px;
+    top: 20%;
+    left: 20%;
+    background: var(--secondary);
+    --x: -60px;
+    --y: -60px;
     animation: sparkle-fly 1.2s 0.1s ease-out forwards;
 }
+
 .auth-anim-overlay.active .sparkles span:nth-child(2) {
-    top: 20%; right: 20%; background: var(--success);
-    --x: 60px; --y: -60px;
+    top: 20%;
+    right: 20%;
+    background: var(--success);
+    --x: 60px;
+    --y: -60px;
     animation: sparkle-fly 1.2s 0.15s ease-out forwards;
 }
+
 .auth-anim-overlay.active .sparkles span:nth-child(3) {
-    bottom: 20%; left: 20%; background: var(--warning);
-    --x: -60px; --y: 60px;
+    bottom: 20%;
+    left: 20%;
+    background: var(--warning);
+    --x: -60px;
+    --y: 60px;
     animation: sparkle-fly 1.2s 0.2s ease-out forwards;
 }
+
 .auth-anim-overlay.active .sparkles span:nth-child(4) {
-    bottom: 20%; right: 20%; background: var(--primary);
-    --x: 60px; --y: 60px;
+    bottom: 20%;
+    right: 20%;
+    background: var(--primary);
+    --x: 60px;
+    --y: 60px;
     animation: sparkle-fly 1.2s 0.25s ease-out forwards;
 }
 
 /* Animations Keyframes */
 @keyframes bounceIn {
-    0% { transform: scale(0.3); opacity: 0; }
-    50% { transform: scale(1.1); }
-    70% { transform: scale(0.9); }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 @keyframes rotateOut {
-    0% { transform: scale(0.3) rotate(-180deg); opacity: 0; }
-    100% { transform: scale(1) rotate(0); opacity: 1; }
+    0% {
+        transform: scale(0.3) rotate(-180deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) rotate(0);
+        opacity: 1;
+    }
 }
 
 @keyframes sparkle-fly {
-    0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-    50% { opacity: 1; }
-    100% { transform: translate(var(--x), var(--y)) scale(1.6); opacity: 0; }
+    0% {
+        transform: translate(0, 0) scale(0.5);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(var(--x), var(--y)) scale(1.6);
+        opacity: 0;
+    }
 }
 
 @keyframes pulseBadge {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.2); }
-    50% { transform: scale(1.05); box-shadow: 0 0 12px 6px rgba(99, 102, 241, 0); }
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.2);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 12px 6px rgba(99, 102, 241, 0);
+    }
 }
 
 /* ===== BOOKSTORE THEME (LIGHT/DARK HARMONY) ===== */
@@ -942,12 +1022,15 @@ input:focus, select:focus {
 }
 
 [data-theme="light"] {
-    --bg-main: #fcfbfa; /* Warm paper texture cream */
+    --bg-main: #fcfbfa;
+    /* Warm paper texture cream */
     --bg-card: #ffffff;
     --border: #f1ede4;
-    --text-main: #1e1b18; /* Cozy soft dark wood tone */
+    --text-main: #1e1b18;
+    /* Cozy soft dark wood tone */
     --text-muted: #6e655f;
-    --primary: #5f33e1; /* Deep rich lavender primary */
+    --primary: #5f33e1;
+    /* Deep rich lavender primary */
 }
 
 /* 3D Book Card Interaction */
@@ -993,9 +1076,11 @@ input:focus, select:focus {
         text-align: center;
         gap: 30px;
     }
+
     .hero-actions-row {
         justify-content: center;
     }
+
     .hero-spotlight {
         justify-content: center;
         display: flex;
@@ -1317,6 +1402,7 @@ input:focus, select:focus {
     .controls-panel {
         grid-template-columns: 1fr;
     }
+
     .filters-right {
         width: 100%;
     }
@@ -1377,6 +1463,7 @@ input:focus, select:focus {
         grid-template-columns: 1fr;
         gap: 25px;
     }
+
     .details-card {
         padding: 30px 20px;
         max-height: 90vh;
@@ -1389,7 +1476,7 @@ input:focus, select:focus {
     max-height: 420px;
     object-fit: cover;
     border-radius: var(--radius-lg);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
 .details-info-section .details-badge {
@@ -1463,8 +1550,15 @@ input:focus, select:focus {
 }
 
 @keyframes slideUp {
-    from { transform: translateY(40px) scale(0.95); opacity: 0; }
-    to { transform: translateY(0) scale(1); opacity: 1; }
+    from {
+        transform: translateY(40px) scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
 }
 
 /* ===== PREMIUM FOOTER STYLING ===== */
@@ -1491,6 +1585,7 @@ input:focus, select:focus {
         gap: 30px;
         text-align: center;
     }
+
     .premium-footer .footer-social .social-icons {
         justify-content: center;
     }
@@ -1504,7 +1599,8 @@ input:focus, select:focus {
     max-width: 320px;
 }
 
-.footer-links h4, .footer-social h4 {
+.footer-links h4,
+.footer-social h4 {
     font-size: 1.1rem;
     font-weight: 700;
     margin-bottom: 20px;
@@ -1568,4 +1664,37 @@ input:focus, select:focus {
     text-align: center;
     color: var(--text-muted);
     font-size: 0.9rem;
+}
+
+/* User Orders Modal Styling */
+.user-order-card {
+    border: 1px solid var(--border);
+    padding: 15px;
+    border-radius: var(--radius-md);
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    transition: var(--transition);
+}
+
+.user-order-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.user-order-book-item {
+    font-size: 0.95rem;
+    margin-top: 5px;
+    color: var(--text-main);
+}
+
+.btn-orders-header {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.btn-orders-header:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-1px);
 }

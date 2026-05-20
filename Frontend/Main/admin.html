@@ -188,7 +188,21 @@
     <script src="function.js"></script>
     <script>
         // Additional Admin Logic
+        function setupAdminTabs() {
+            const isSeller = state.user && state.user.role === 'ROLE_SATICI';
+            const tabUsers = document.getElementById('tab-users');
+            const tabOrders = document.getElementById('tab-orders');
+            if (isSeller) {
+                if (tabUsers) tabUsers.style.display = 'none';
+                if (tabOrders) tabOrders.style.display = 'none';
+            } else {
+                if (tabUsers) tabUsers.style.display = 'inline-block';
+                if (tabOrders) tabOrders.style.display = 'inline-block';
+            }
+        }
+
         async function loadAdminBooks() {
+            setupAdminTabs();
             const container = document.getElementById('admin-books-container');
             if (!container) return;
             container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
@@ -212,6 +226,8 @@
                 return;
             }
 
+            const isSeller = state.user && state.user.role === 'ROLE_SATICI';
+
             container.innerHTML = `
                 <table class="admin-table">
                     <thead>
@@ -234,7 +250,7 @@
                                 <td>${book.price.toFixed(2)} ₼</td>
                                 <td>
                                     <button class="btn btn-secondary" onclick="openEditModalById('${book.id}')">✏️</button>
-                                    <button class="btn btn-secondary" style="color: var(--danger)" onclick="deleteAdminBook('${book.id}')">🗑️</button>
+                                    ${isSeller ? '' : `<button class="btn btn-secondary" style="color: var(--danger)" onclick="deleteAdminBook('${book.id}')">🗑️</button>`}
                                 </td>
                             </tr>
                         `).join('')}
@@ -252,22 +268,26 @@
             }
         };
 
+        let adminFilterTimeout;
         async function adminSearchBooks() {
-            const search = document.getElementById('admin-search').value.toLowerCase();
-            const category = document.getElementById('admin-category-filter').value;
-            
-            try {
-                const allBooks = await apiRequest(`${API_URL}/all`);
-                window.adminBooks = allBooks; // Update global array
-                const filtered = allBooks.filter(book => {
-                    const matchesSearch = book.title.toLowerCase().includes(search) || book.author.toLowerCase().includes(search);
-                    const matchesCategory = !category || book.category === category;
-                    return matchesSearch && matchesCategory;
-                });
-                renderAdminTable(filtered);
-            } catch (error) {
-                console.error('Search failed', error);
-            }
+            clearTimeout(adminFilterTimeout);
+            adminFilterTimeout = setTimeout(async () => {
+                const search = document.getElementById('admin-search').value;
+                const category = document.getElementById('admin-category-filter').value;
+                
+                const params = new URLSearchParams();
+                if (search) params.append('search', search);
+                if (category) params.append('category', category);
+                
+                try {
+                    const queryStr = params.toString() ? `?${params.toString()}` : '';
+                    const filtered = await apiRequest(`${API_URL}${queryStr}`);
+                    window.adminBooks = filtered; // Update global array
+                    renderAdminTable(filtered);
+                } catch (error) {
+                    console.error('Search failed', error);
+                }
+            }, 300);
         }
 
         async function deleteAdminBook(id) {
@@ -378,10 +398,9 @@
                         ${orders.map(order => {
                             const user = users.find(u => u.id == order.userId);
                             const username = user ? user.username : `İstifadəçi #${order.userId}`;
-                            const orderBooks = order.bookIds.map(bId => {
-                                const bk = books.find(b => b.id == bId);
-                                return bk ? bk.title : `Kitab #${bId}`;
-                            }).join(', ');
+                            const orderBooks = order.items && order.items.length > 0
+                                ? order.items.map(item => `${item.title} (${item.quantity} ədəd)`).join(', ')
+                                : 'Kitab yoxdur';
                             const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleString('az-AZ') : 'Bilinmir';
                             
                             let statusBadgeColor = 'background: rgba(245, 158, 11, 0.1); color: var(--warning);';
@@ -394,12 +413,16 @@
                                 statusText = 'Ləğv edildi';
                             }
                             
+                            const displayPrice = typeof order.totalPrice === 'number'
+                                ? order.totalPrice.toFixed(2)
+                                : parseFloat(order.totalPrice || 0).toFixed(2);
+                            
                             return `
                                 <tr>
                                     <td><code>#${order.id}</code></td>
                                     <td><strong>@${escapeHtml(username)}</strong></td>
                                     <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(orderBooks)}">${escapeHtml(orderBooks)}</td>
-                                    <td><strong>${order.totalPrice.toFixed(2)} ₼</strong></td>
+                                    <td><strong>${displayPrice} ₼</strong></td>
                                     <td><span class="badge" style="${statusBadgeColor}">${statusText}</span></td>
                                     <td><span style="font-size: 0.85rem; color: var(--text-muted);">${orderDate}</span></td>
                                     <td>

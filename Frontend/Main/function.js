@@ -346,12 +346,15 @@ window.checkoutOrder = async () => {
         return;
     }
     
-    const bookIds = state.cart.map(item => item.id.toString());
+    const items = state.cart.map(item => ({
+        bookId: item.id.toString(),
+        quantity: item.quantity
+    }));
     
     try {
         const orderRequestData = {
             userId: userId,
-            bookIds: bookIds
+            items: items
         };
         
         const responseData = await apiRequest(`${API_BASE_URL}/api/orders`, {
@@ -380,23 +383,33 @@ window.checkoutOrder = async () => {
 
 // ===== SEARCH & FILTERS =====
 
+let filterTimeout;
 window.applyFiltersAndSort = () => {
-    const search = document.getElementById('search-input')?.value.toLowerCase() || '';
-    const category = document.getElementById('filter-category')?.value || 'all';
-    const sort = document.getElementById('sort-books')?.value || 'default';
+    clearTimeout(filterTimeout);
+    filterTimeout = setTimeout(async () => {
+        const search = document.getElementById('search-input')?.value || '';
+        const category = document.getElementById('filter-category')?.value || 'all';
+        const sort = document.getElementById('sort-books')?.value || 'default';
 
-    let filtered = state.books.filter(book => {
-        const matchesSearch = book.title.toLowerCase().includes(search) || book.author.toLowerCase().includes(search);
-        const matchesCategory = category === 'all' || book.category === category;
-        return matchesSearch && matchesCategory;
-    });
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (category && category !== 'all') params.append('category', category);
+        if (sort && sort !== 'default') params.append('sort', sort);
 
-    if (sort === 'price-asc') filtered.sort((a, b) => a.price - b.price);
-    else if (sort === 'price-desc') filtered.sort((a, b) => b.price - a.price);
-    else if (sort === 'title-az') filtered.sort((a, b) => a.title.localeCompare(b.title));
-    else if (sort === 'year-desc') filtered.sort((a, b) => b.year - a.year);
+        const bookList = document.getElementById('book-list');
+        if (bookList) {
+            bookList.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        }
 
-    renderBooks(filtered);
+        try {
+            const queryStr = params.toString() ? `?${params.toString()}` : '';
+            const filteredBooks = await apiRequest(`${API_URL}${queryStr}`);
+            renderBooks(filteredBooks);
+        } catch (error) {
+            console.error('Filtering books failed:', error);
+            showToast('❌ Kitabları axtarmaq mümkün olmadı', 'danger');
+        }
+    }, 300);
 };
 
 // ===== ADMIN & FORM LOGIC =====
@@ -537,6 +550,7 @@ function getFriendlyRole(role) {
     switch (role) {
         case 'ROLE_ADMIN': return 'Admin';
         case 'ROLE_SATICI': return 'Satıcı';
+        case 'ROLE_USER':
         case 'ROLE_ALICI': return 'Alıcı';
         default: return role;
     }
@@ -576,14 +590,6 @@ function ensureAuthModal() {
                 <div class="input-group" style="margin-top: 15px;">
                     <label for="register-password">Şifrə</label>
                     <input type="password" id="register-password" placeholder="Şifrənizi təyin edin" required autocomplete="new-password">
-                </div>
-                <div class="input-group" style="margin-top: 15px;">
-                    <label for="register-role">Rol seçin</label>
-                    <select id="register-role" required>
-                        <option value="ROLE_ALICI">Alıcı (Kitab alışı və kataloq)</option>
-                        <option value="ROLE_SATICI">Satıcı (Kitab əlavə etmək/redaktə)</option>
-                        <option value="ROLE_ADMIN">Admin (Tam səlahiyyət)</option>
-                    </select>
                 </div>
                 <button type="submit" class="btn btn-primary" style="margin-top: 25px; width: 100%;">Qeydiyyatdan Keç</button>
             </form>
@@ -720,13 +726,12 @@ window.handleRegisterSubmit = async (e) => {
     e.preventDefault();
     const username = document.getElementById('register-username').value;
     const password = document.getElementById('register-password').value;
-    const role = document.getElementById('register-role').value;
     
     try {
         const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password, role })
+            body: JSON.stringify({ username, password })
         });
         
         if (!response.ok) {
@@ -768,6 +773,9 @@ function updateHeaderAuthUI() {
     
     if (state.user) {
         authDiv.innerHTML = `
+            <button class="btn-auth-action btn-orders-header" onclick="openOrdersModal()">
+                <i class="fas fa-box"></i> Sifarişlərim
+            </button>
             <div class="user-badge">
                 <i class="fas fa-user"></i>
                 <span>${escapeHtml(state.user.username)}</span>
@@ -806,7 +814,6 @@ function applyNavigationAccess() {
     if (!navLinks) return;
     
     const isSaticiOrAdmin = state.user && (state.user.role === 'ROLE_SATICI' || state.user.role === 'ROLE_ADMIN');
-    const isAdmin = state.user && state.user.role === 'ROLE_ADMIN';
     const path = window.location.pathname;
     
     let linksHtml = `
@@ -816,11 +823,6 @@ function applyNavigationAccess() {
     if (isSaticiOrAdmin) {
         linksHtml += `
             <li><a href="addbook.html" class="${path.includes('addbook.html') ? 'active' : ''}">➕ Əlavə Et</a></li>
-        `;
-    }
-    
-    if (isAdmin) {
-        linksHtml += `
             <li><a href="admin.html" class="${path.includes('admin.html') ? 'active' : ''}">⚙️ Admin</a></li>
         `;
     }
@@ -828,7 +830,7 @@ function applyNavigationAccess() {
     navLinks.innerHTML = linksHtml;
     
     // Route guards
-    if (path.includes('admin.html') && !isAdmin) {
+    if (path.includes('admin.html') && !isSaticiOrAdmin) {
         window.location.href = 'index.html';
     } else if (path.includes('addbook.html') && !isSaticiOrAdmin) {
         window.location.href = 'index.html';
@@ -842,3 +844,85 @@ function handleAuthError() {
         window.location.href = 'index.html';
     }, 1500);
 }
+
+// User Orders History Modal System
+function ensureOrdersModal() {
+    if (document.getElementById('orders-modal')) return;
+
+    const modalHtml = `
+    <div id="orders-modal" class="auth-overlay">
+        <div class="auth-container" style="max-width: 700px; width: 95%;">
+            <button class="auth-close" onclick="closeOrdersModal()">&times;</button>
+            <div class="section-title" style="font-size: 1.5rem; margin-bottom: 20px;">
+                <i class="fas fa-box-open" style="color: var(--primary);"></i> Sifarişlərim
+            </div>
+            <div id="user-orders-list" style="max-height: 450px; overflow-y: auto; padding-right: 5px;">
+                <!-- Orders will be injected here -->
+            </div>
+        </div>
+    </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+window.openOrdersModal = async () => {
+    if (!state.user) {
+        showToast('⚠️ Lütfən daxil olun', 'warning');
+        return;
+    }
+    ensureOrdersModal();
+    
+    const container = document.getElementById('user-orders-list');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    document.getElementById('orders-modal').classList.add('active');
+    
+    try {
+        const orders = await apiRequest(`${API_BASE_URL}/api/orders/user/${state.user.id}`);
+        if (!orders || orders.length === 0) {
+            container.innerHTML = '<div class="empty" style="text-align: center; padding: 30px; color: var(--text-muted);">📦 Hələ ki heç bir sifarişiniz yoxdur.</div>';
+            return;
+        }
+        
+        container.innerHTML = orders.map(order => {
+            const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleString('az-AZ') : 'Bilinmir';
+            const orderBooks = order.items && order.items.length > 0
+                ? order.items.map(item => `<div class="user-order-book-item">📖 ${escapeHtml(item.title)} (${item.quantity} ədəd) - ${item.unitPrice.toFixed(2)} ₼</div>`).join('')
+                : 'Kitab yoxdur';
+            
+            let statusBadgeColor = 'background: rgba(245, 158, 11, 0.1); color: var(--warning);';
+            let statusText = 'Gözləyir';
+            if (order.status === 'COMPLETED') {
+                statusBadgeColor = 'background: rgba(34, 197, 94, 0.1); color: var(--success);';
+                statusText = 'Tamamlandı';
+            } else if (order.status === 'CANCELLED') {
+                statusBadgeColor = 'background: rgba(239, 68, 68, 0.1); color: var(--danger);';
+                statusText = 'Ləğv edildi';
+            }
+            
+            return `
+                <div class="user-order-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-muted);">Sifariş <code style="color: var(--primary);">#${order.id}</code></span>
+                        <span class="badge" style="${statusBadgeColor}">${statusText}</span>
+                    </div>
+                    <div style="margin-bottom: 12px; font-size: 0.9rem;">
+                        ${orderBooks}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; font-size: 0.9rem;">
+                        <span style="color: var(--text-muted);">${orderDate}</span>
+                        <span>Cəmi: <strong style="color: var(--primary); font-size: 1.1rem;">${order.totalPrice.toFixed(2)} ₼</strong></span>
+                    </div>
+                </div>
+            `;
+        }).reverse().join('');
+    } catch (error) {
+        container.innerHTML = '<div class="empty" style="text-align: center; padding: 30px; color: var(--danger);">❌ Sifarişləri yükləmək mümkün olmadı.</div>';
+    }
+};
+
+window.closeOrdersModal = () => {
+    const modal = document.getElementById('orders-modal');
+    if (modal) modal.classList.remove('active');
+};
