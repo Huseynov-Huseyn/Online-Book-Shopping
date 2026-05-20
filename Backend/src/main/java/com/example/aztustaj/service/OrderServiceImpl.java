@@ -10,6 +10,7 @@ import com.example.aztustaj.repository.OrderRepository;
 import com.example.aztustaj.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,6 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private BookRepository bookRepository;
 
     @Override
+    @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest) {
         User user = userRepository.findById(orderRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("İstifadəçi tapılmadı"));
@@ -63,6 +65,16 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new RuntimeException("Kitab tapılmadı: " + itemRequest.getBookId()));
 
         int quantity = itemRequest.getQuantity() <= 0 ? 1 : itemRequest.getQuantity();
+
+        if (book.getStockQuantity() < quantity) {
+            throw new RuntimeException("Kifayət qədər stok yoxdur: " + book.getTitle() +
+                    " (Mövcud stok: " + book.getStockQuantity() + ", Sifariş miqdarı: " + quantity + ")");
+        }
+
+        // Stoku azalt və yadda saxla
+        book.setStockQuantity(book.getStockQuantity() - quantity);
+        bookRepository.save(book);
+
         BigDecimal unitPrice = book.getPrice();
         BigDecimal itemTotalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
 
@@ -99,12 +111,39 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderResponse updateOrderStatus(Long id, String status) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sifariş tapılmadı"));
 
         try {
-            order.setStatus(OrderStatus.valueOf(status.toUpperCase()));
+            OrderStatus newStatus = OrderStatus.valueOf(status.toUpperCase());
+            OrderStatus oldStatus = order.getStatus();
+
+            if (newStatus == OrderStatus.CANCELLED && oldStatus != OrderStatus.CANCELLED) {
+                // Sifariş ləğv edilirsə kitabların stokunu geri qaytarırıq
+                if (order.getItems() != null) {
+                    for (OrderItem item : order.getItems()) {
+                        Book book = item.getBook();
+                        book.setStockQuantity(book.getStockQuantity() + item.getQuantity());
+                        bookRepository.save(book);
+                    }
+                }
+            } else if (oldStatus == OrderStatus.CANCELLED && newStatus != OrderStatus.CANCELLED) {
+                // Əgər əvvəl ləğv edilmiş sifariş yenidən aktiv edilirsə, stoku yenidən yoxlayıb çıxırıq
+                if (order.getItems() != null) {
+                    for (OrderItem item : order.getItems()) {
+                        Book book = item.getBook();
+                        if (book.getStockQuantity() < item.getQuantity()) {
+                            throw new RuntimeException("Sifarişi yenidən aktiv etmək mümkün deyil. Kifayət qədər stok yoxdur: " + book.getTitle());
+                        }
+                        book.setStockQuantity(book.getStockQuantity() - item.getQuantity());
+                        bookRepository.save(book);
+                    }
+                }
+            }
+
+            order.setStatus(newStatus);
             Order updatedOrder = orderRepository.save(order);
             return mapToResponse(updatedOrder);
         } catch (IllegalArgumentException e) {
@@ -113,9 +152,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void deleteOrder(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sifariş tapılmadı"));
+
+        // Silinən sifariş əgər CANCELLED statusunda deyildisə, silinməzdən əvvəl stokları geri qaytarırıq
+        if (order.getStatus() != OrderStatus.CANCELLED && order.getItems() != null) {
+            for (OrderItem item : order.getItems()) {
+                Book book = item.getBook();
+                book.setStockQuantity(book.getStockQuantity() + item.getQuantity());
+                bookRepository.save(book);
+            }
+        }
         orderRepository.delete(order);
     }
 

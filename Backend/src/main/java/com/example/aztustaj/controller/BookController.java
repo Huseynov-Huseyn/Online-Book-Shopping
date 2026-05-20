@@ -132,6 +132,10 @@ public class BookController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("error", "Qiymət mənfi və ya boş ola bilməz"));
             }
+            if (book.getStockQuantity() < 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Stok sayı mənfi ola bilməz"));
+            }
 
             Book savedBook = bookService.saveBook(book);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);

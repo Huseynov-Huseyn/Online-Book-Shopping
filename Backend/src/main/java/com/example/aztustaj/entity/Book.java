@@ -39,6 +39,10 @@ public class Book {
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Column(name = "stock_quantity", nullable = false)
+    @Builder.Default
+    private int stockQuantity = 0;
+
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 }

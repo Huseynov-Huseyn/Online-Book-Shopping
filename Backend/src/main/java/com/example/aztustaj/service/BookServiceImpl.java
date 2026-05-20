@@ -2,6 +2,7 @@ package com.example.aztustaj.service;
 
 import com.example.aztustaj.entity.Book;
 import com.example.aztustaj.repository.BookRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
 
     @Override
+    @Transactional
     public List<Book> getAllBooks(String search, String category, String sort) {
         List<Book> books;
 
@@ -78,6 +80,7 @@ public class BookServiceImpl implements BookService {
             existingBook.setPages(book.getPages() > 0 ? book.getPages() : existingBook.getPages());
             existingBook.setYear(book.getYear() > 0 ? book.getYear() : existingBook.getYear());
             existingBook.setPrice(book.getPrice() != null && book.getPrice().signum() > 0 ? book.getPrice() : existingBook.getPrice());
+            existingBook.setStockQuantity(book.getStockQuantity() >= 0 ? book.getStockQuantity() : existingBook.getStockQuantity());
             return bookRepository.save(existingBook);
         }
         return null;
