@@ -144,30 +144,9 @@
     </footer>
 
     <script src="function.js"></script>
-    <script>
-        document.getElementById('book-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const imageInput = document.getElementById('book-image');
-            const file = imageInput.files[0];
 
-            const bookData = {
-                title: document.getElementById('title').value,
-                author: document.getElementById('author').value,
-                category: document.getElementById('category-select').value,
-                pages: parseInt(document.getElementById('pages').value),
-                year: parseInt(document.getElementById('year').value),
-                price: parseFloat(document.getElementById('price').value),
-                stockQuantity: parseInt(document.getElementById('stockQuantity').value)
-            };
-
-            const result = await submitBookForm(bookData, file);
-            if (result.success) {
-                document.getElementById('book-form').reset();
-                document.getElementById('image-preview').style.display = 'none';
-                loadRecentBooks();
-            }
-        });
-    </script>
+<script src=\scripts.js\></script>
 </body>
 
 </html>
+

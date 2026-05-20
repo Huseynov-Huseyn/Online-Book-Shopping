@@ -1,14 +1,13 @@
 package com.example.aztustaj.controller;
 
+import com.example.aztustaj.dto.UserProfileRequest;
 import com.example.aztustaj.dto.UserResponse;
 import com.example.aztustaj.entity.User;
 import com.example.aztustaj.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,11 +22,7 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> users = userService.findAll()
                 .stream()
-                .map(user -> new UserResponse(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getRole().name()
-                ))
+                .map(this::convertToResponse)
                 .toList();
 
         return ResponseEntity.ok(users);
@@ -41,12 +36,28 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(
-                new UserResponse(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getRole().name()
-                )
+        return ResponseEntity.ok(convertToResponse(user));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<UserResponse> updateProfile(
+            @RequestBody UserProfileRequest profileRequest,
+            Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        User updatedUser = userService.updateProfile(user.getUsername(), profileRequest);
+
+        return ResponseEntity.ok(convertToResponse(updatedUser));
+    }
+
+    private UserResponse convertToResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getRole().name(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getPhoneNumber(),
+                user.getAddress()
         );
     }
 }

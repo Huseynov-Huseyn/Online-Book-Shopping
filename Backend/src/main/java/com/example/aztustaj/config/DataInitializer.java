@@ -32,6 +32,10 @@ public class DataInitializer implements CommandLineRunner {
                     .username("admin")
                     .password(passwordEncoder.encode("admin123"))
                     .role(Role.ROLE_ADMIN)
+                    .fullName("Huseyn Huseynov")
+                    .email("huseynhuseyn343@gmail.com")
+                    .phoneNumber("+994500000000")
+                    .address("Baku")
                     .build();
 
             userRepository.save(admin);
@@ -42,6 +46,10 @@ public class DataInitializer implements CommandLineRunner {
                     .username("satici")
                     .password(passwordEncoder.encode("satici123"))
                     .role(Role.ROLE_SATICI)
+                    .fullName("Eli Veliyev")
+                    .email("eliveliyev@gmail.com")
+                    .phoneNumber("+994505555555")
+                    .address("Gandja")
                     .build();
 
             userRepository.save(seller);

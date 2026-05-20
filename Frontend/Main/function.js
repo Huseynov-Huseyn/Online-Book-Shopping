@@ -10,7 +10,7 @@ const API_BASE_URL = new URL(API_URL).origin;
 // State Management
 let state = {
     books: [],
-    cart: JSON.parse(localStorage.getItem('cart')) || [],
+    cart: [],
     isEditMode: false,
     editBookId: null,
     theme: localStorage.getItem('theme') || 'dark',
@@ -282,27 +282,49 @@ function createBookCard(book) {
 
 // ===== CART LOGIC =====
 
-window.addToCart = (bookOrId) => {
+async function fetchServerCart() {
+    if (!state.user) return;
+    try {
+        const cartDto = await apiRequest(`${API_BASE_URL}/api/cart`);
+        syncCartState(cartDto);
+    } catch(e) { console.error('Cart load err:', e); }
+}
+
+function syncCartState(cartDto) {
+    if (!cartDto || !cartDto.items) {
+        state.cart = [];
+    } else {
+        state.cart = cartDto.items.map(item => ({
+            id: item.bookId,
+            title: item.title,
+            price: item.price,
+            quantity: item.quantity
+        }));
+    }
+    updateCartUI();
+}
+
+window.addToCart = async (bookOrId) => {
+    if (!state.user) {
+        showToast('Səbətə əlavə etmək üçün lütfən daxil olun', 'warning');
+        if(window.openAuthModal) window.openAuthModal();
+        return;
+    }
+    
     let book = bookOrId;
     if (typeof bookOrId === 'number' || typeof bookOrId === 'string') {
         book = state.books.find(b => b.id == bookOrId);
     }
     if (!book) return;
 
-    const found = state.cart.find(item => item.id === book.id);
-    if (found) {
-        found.quantity++;
-    } else {
-        state.cart.push({ ...book, quantity: 1 });
+    try {
+        const cartDto = await apiRequest(`${API_BASE_URL}/api/cart/add/${book.id}?quantity=1`, { method: 'POST' });
+        syncCartState(cartDto);
+        showToast("🛒 Səbətə əlavə edildi", "success");
+    } catch(e) {
+        showToast("Xəta baş verdi", "danger");
     }
-    saveCart();
-    updateCartUI();
-    showToast("🛒 Səbətə əlavə edildi", "success");
 };
-
-function saveCart() {
-    localStorage.setItem('cart', JSON.stringify(state.cart));
-}
 
 function updateCartUI() {
     const cartCount = document.getElementById('cart-count');
@@ -320,10 +342,10 @@ function updateCartUI() {
             li.className = 'cart-item';
             li.innerHTML = `
                 <div class="cart-item-info">
-                    <h4>${item.title}</h4>
+                    <h4>${escapeHtml(item.title)}</h4>
                     <p>${item.quantity} x ${item.price.toFixed(2)} ₼</p>
                 </div>
-                <button class="btn btn-secondary" style="color: var(--danger)" onclick="removeFromCart('${item.id}')">✕</button>
+                <button class="btn btn-secondary" onclick="removeFromCart('${item.id}')">✕</button>
             `;
             cartList.appendChild(li);
         });
@@ -333,10 +355,12 @@ function updateCartUI() {
     }
 }
 
-window.removeFromCart = (id) => {
-    state.cart = state.cart.filter(item => item.id != id);
-    saveCart();
-    updateCartUI();
+window.removeFromCart = async (id) => {
+    if (!state.user) return;
+    try {
+        const cartDto = await apiRequest(`${API_BASE_URL}/api/cart/remove/${id}`, { method: 'DELETE' });
+        syncCartState(cartDto);
+    } catch(e) { console.error('Remove item failed', e); }
 };
 
 window.checkoutOrder = async () => {
@@ -376,9 +400,13 @@ window.checkoutOrder = async () => {
         
         if (responseData && responseData.id) {
             showToast('🎉 Sifarişiniz uğurla qəbul edildi!', 'success');
-            state.cart = [];
-            saveCart();
-            updateCartUI();
+            
+            // Səbəti backend-dən təmizlə
+            try {
+                await apiRequest(`${API_BASE_URL}/api/cart/clear`, { method: 'DELETE' });
+                state.cart = [];
+                updateCartUI();
+            } catch(e) { console.error('Cart clear failed', e); }
             
             // Close cart panel if open
             const cartPanel = document.getElementById('cart-panel');
@@ -787,6 +815,7 @@ function updateHeaderAuthUI() {
     authDiv.style.gap = '10px';
     
     if (state.user) {
+        fetchServerCart();
         authDiv.innerHTML = `
             <button class="btn-auth-action btn-orders-header" onclick="openProfileModal()">
                 <i class="fas fa-id-card"></i> Profil

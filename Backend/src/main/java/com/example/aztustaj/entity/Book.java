@@ -45,4 +45,8 @@ public class Book {
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;
+
+    @Column(name = "average_rating")
+    @Builder.Default
+    private Double averageRating = 0.0;
 }
