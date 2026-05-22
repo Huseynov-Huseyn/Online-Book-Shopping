@@ -25,6 +25,10 @@ const initApp = () => {
     updateHeaderAuthUI();
     applyNavigationAccess();
 
+    // Load categories for filters / genre badges / admin & addbook selects
+    // (if backend provides /api/books/categories)
+    if (typeof loadCategories === 'function') loadCategories();
+
     const path = window.location.pathname;
     if (path.includes('index.html') || path === '/' || path.endsWith('Main/') || path.endsWith('Main')) {
         loadBooks();
@@ -205,6 +209,94 @@ async function loadRecentBooks() {
     }
 }
 
+// ===== CATEGORIES (populate filters and genre badges) =====
+async function loadCategories() {
+    try {
+        // Backend endpoint (common pattern): /api/books/categories
+        const cats = await apiRequest(`${API_URL}/categories`);
+        if (!cats || !Array.isArray(cats)) return;
+
+        const names = cats.map(c => (typeof c === 'string' ? c : (c.name || c.category || JSON.stringify(c))));
+
+        // filter-category select (index)
+        const filterEl = document.getElementById('filter-category');
+        if (filterEl) {
+            filterEl.innerHTML = '<option value="all">Bütün Kateqoriyalar</option>';
+            names.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n;
+                opt.textContent = n;
+                filterEl.appendChild(opt);
+            });
+        }
+
+        // genre badges (index)
+        const badges = document.getElementById('genre-badges');
+        if (badges) {
+            badges.innerHTML = '<button class="genre-btn active" data-genre="all">🏷️ Hamısı</button>';
+            names.forEach(n => {
+                const btn = document.createElement('button');
+                btn.className = 'genre-btn';
+                btn.dataset.genre = n;
+                btn.textContent = n;
+                badges.appendChild(btn);
+            });
+
+            // Re-bind click listeners for the newly created buttons
+            document.querySelectorAll('.genre-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const genre = btn.dataset.genre;
+                    const catEl = document.getElementById('filter-category');
+                    if (catEl) {
+                        catEl.value = genre === 'all' ? 'all' : genre;
+                        window.applyFiltersAndSort && window.applyFiltersAndSort();
+                    }
+                });
+            });
+        }
+
+        // addbook category-select
+        const addSel = document.getElementById('category-select');
+        if (addSel) {
+            addSel.innerHTML = '<option value="" disabled selected>Kateqoriya seçin...</option>';
+            names.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n;
+                opt.textContent = n;
+                addSel.appendChild(opt);
+            });
+        }
+
+        // admin category filter
+        const adminSel = document.getElementById('admin-category-filter');
+        if (adminSel) {
+            adminSel.innerHTML = '<option value="">Bütün Kateqoriyalar</option>';
+            names.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n;
+                opt.textContent = n;
+                adminSel.appendChild(opt);
+            });
+        }
+
+        // edit modal category select
+        const editSel = document.getElementById('edit-category');
+        if (editSel) {
+            editSel.innerHTML = '';
+            names.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n;
+                opt.textContent = n;
+                editSel.appendChild(opt);
+            });
+        }
+    } catch (error) {
+        console.error('loadCategories failed', error);
+    }
+}
+
 // ===== UI RENDERING =====
 
 function renderBooks(books) {
@@ -321,7 +413,12 @@ window.addToCart = async (bookOrId) => {
         showToast("🛒 Səbətə əlavə edildi", "success");
     } catch (e) {
         console.error('addToCart error:', e);
-        showToast(`❌ Səbətə əlavə oluna bilmədi: ${e.message || 'Naməlum xəta'}`, "danger");
+        // Provide a clearer message for 403 (forbidden) vs other errors
+        if (e && e.message && e.message.includes('403')) {
+            showToast('❌ Səbətə əlavə oluna bilmədi: 403 Forbidden — Bu əməliyyat üçün kifayət qədər səlahiyyətiniz yoxdur və ya backend parametrləri tələb olunur. Lütfən hesabınızı və rolunuzu yoxlayın (daxil olunmuş olmalısınız).', 'danger');
+        } else {
+            showToast(`❌ Səbətə əlavə oluna bilmədi: ${e.message || 'Naməlum xəta'}`, "danger");
+        }
     }
 };
 

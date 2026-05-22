@@ -47,36 +47,34 @@
             <div class="form-grid">
                 <div class="input-group">
                     <label for="title">Kitabın Adı *</label>
-                    <input id="title" required type="text" value="The Valley of Fear">
+                    <input id="title" placeholder="Kitabın adını daxil edin" required type="text">
                 </div>
                 <div class="input-group">
                     <label for="author">Müəllif *</label>
-                    <input id="author" required type="text" value="Sir Arthur Conan Doyle">
+                    <input id="author" placeholder="Müəllifin adı" required type="text">
                 </div>
                 <div class="input-group">
                     <label for="category-select">Kateqoriya *</label>
                     <select id="category-select" required>
-                        <option selected value="Dedektiv">🔍 Dedektiv</option>
-                        <option value="Bədii">🎨 Bədii</option>
-                        <option value="Elmi">🔬 Elmi</option>
-                        <option value="Tarix">📖 Tarix</option>
+                        <option value="" disabled selected>Kateqoriya seçin...</option>
+                        <!-- Kateqoriyalar backend-dən dinamik yüklənir -->
                     </select>
                 </div>
                 <div class="input-group">
                     <label for="pages">Səhifə Sayı *</label>
-                    <input id="pages" min="1" required type="number" value="180">
+                    <input id="pages" min="1" placeholder="Məs. 250" required type="number">
                 </div>
                 <div class="input-group">
                     <label for="year">Nəşr İli *</label>
-                    <input id="year" max="2099" min="1500" required type="number" value="1915">
+                    <input id="year" max="2099" min="1500" placeholder="Məs. 2024" required type="number">
                 </div>
                 <div class="input-group">
                     <label for="price">Qiymət (₼) *</label>
-                    <input id="price" min="0" required step="0.01" type="number" value="18.50">
+                    <input id="price" min="0" placeholder="Məs. 15.99" required step="0.01" type="number">
                 </div>
                 <div class="input-group">
                     <label for="stockQuantity">Stok Sayı *</label>
-                    <input id="stockQuantity" min="0" required type="number" value="10">
+                    <input id="stockQuantity" min="0" placeholder="Məs. 10" required type="number">
                 </div>
             </div>
 

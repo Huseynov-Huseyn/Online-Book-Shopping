@@ -71,8 +71,8 @@
         <!-- Literary Quote Widget -->
         <div class="bento-card quote-widget" id="quote-widget">
             <div class="widget-icon"><i class="fas fa-quote-left"></i></div>
-            <div class="quote-text" id="quote-display">"Kitabsız yaşamaq, kor-karana yaşamaqdır."</div>
-            <div class="quote-author" id="quote-author-display">— Seneca</div>
+            <div class="quote-text" id="quote-display">Yüklənir...</div>
+            <div class="quote-author" id="quote-author-display"></div>
             <div class="quote-refresh-tip"><i class="fas fa-sync-alt"></i> Yeni sitat üçün toxunun</div>
         </div>
 
@@ -85,7 +85,7 @@
                 bitirəcəyinizi hesablayın.
             </p>
             <div class="calc-inputs">
-                <input id="calc-pages" min="1" placeholder="Səhifə sayı" type="number" value="250">
+                <input id="calc-pages" min="1" placeholder="Səhifə sayı" type="number">
                 <select id="calc-speed">
                     <option value="slow">Yavaş (30 söz/dəq)</option>
                     <option selected value="normal">Normal (45 söz/dəq)</option>
@@ -93,7 +93,7 @@
                 </select>
             </div>
             <div class="calc-result" id="calc-result-text">
-                Təxmini oxu vaxtı: <strong>5.0 saat</strong> (cəmi <strong>5 gün</strong>)
+                Səhifə sayını daxil edin...
             </div>
         </div>
     </section>
@@ -105,10 +105,7 @@
         </div>
         <div class="genre-badges" id="genre-badges">
             <button class="genre-btn active" data-genre="all">🏷️ Hamısı</button>
-            <button class="genre-btn" data-genre="Bədii">🎨 Bədii</button>
-            <button class="genre-btn" data-genre="Elmi">🔬 Elmi</button>
-            <button class="genre-btn" data-genre="Tarix">📖 Tarix</button>
-            <button class="genre-btn" data-genre="Dedektiv">🔍 Dedektiv</button>
+            <!-- Janr düymələri backend-dən (/api/books/categories) dinamik yüklənir -->
         </div>
     </section>
 
@@ -130,10 +127,7 @@
             <div class="filters-right">
                 <select id="filter-category">
                     <option value="all">Bütün Kateqoriyalar</option>
-                    <option value="Bədii">🎨 Bədii</option>
-                    <option value="Elmi">🔬 Elmi</option>
-                    <option value="Tarix">📖 Tarix</option>
-                    <option value="Dedektiv">🔍 Dedektiv</option>
+                    <!-- Kateqoriyalar backend-dən dinamik yüklənir -->
                 </select>
 
                 <select id="sort-books">

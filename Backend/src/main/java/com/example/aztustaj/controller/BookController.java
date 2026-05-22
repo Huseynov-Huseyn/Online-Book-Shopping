@@ -12,8 +12,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/books")
@@ -177,6 +179,23 @@ public class BookController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Kitab silinərkən xəta: " + e.getMessage()));
+        }
+    }
+
+    // DB-dəki distinct kateqoriyalar (frontend dropdown və janr düymələri üçün)
+    @GetMapping("/categories")
+    public ResponseEntity<?> getCategories() {
+        try {
+            List<String> categories = bookService.getAllBooks().stream()
+                    .map(Book::getCategory)
+                    .filter(c -> c != null && !c.isBlank())
+                    .distinct()
+                    .sorted(Comparator.naturalOrder())
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(categories);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Kateqoriyaları gətirərkən xəta: " + e.getMessage()));
         }
     }
 
