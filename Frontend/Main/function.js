@@ -241,20 +241,6 @@ async function loadCategories() {
                 btn.textContent = n;
                 badges.appendChild(btn);
             });
-
-            // Re-bind click listeners for the newly created buttons
-            document.querySelectorAll('.genre-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    const genre = btn.dataset.genre;
-                    const catEl = document.getElementById('filter-category');
-                    if (catEl) {
-                        catEl.value = genre === 'all' ? 'all' : genre;
-                        window.applyFiltersAndSort && window.applyFiltersAndSort();
-                    }
-                });
-            });
         }
 
         // addbook category-select
@@ -692,12 +678,11 @@ function clearUserSession() {
 
 function getFriendlyRole(role) {
     switch (role) {
-        case 'ROLE_ADMIN':
+        case 'Admin':
             return 'Admin';
-        case 'ROLE_SATICI':
+        case 'Owner':
             return 'Satıcı';
-        case 'ROLE_USER':
-        case 'ROLE_ALICI':
+        case 'User':
             return 'Alıcı';
         default:
             return role;
@@ -965,7 +950,7 @@ function applyNavigationAccess() {
     const navLinks = document.querySelector('.nav-links');
     if (!navLinks) return;
 
-    const isSaticiOrAdmin = state.user && (state.user.role === 'ROLE_SATICI' || state.user.role === 'ROLE_ADMIN');
+    const isSaticiOrAdmin = state.user && (state.user.role === 'Owner' || state.user.role === 'Admin');
     const path = window.location.pathname;
 
     let linksHtml = `
@@ -1085,15 +1070,15 @@ window.closeOrdersModal = () => {
     if (modal) modal.classList.remove('active');
 };
 
-// User Profile Modal System (Using /api/users/{username})
+// User Profile Modal System (Using /api/users/me or localStorage fallback)
 function ensureProfileModal() {
     if (document.getElementById('profile-modal')) return;
 
     const modalHtml = `
     <div id="profile-modal" class="auth-overlay">
-        <div class="auth-container" style="max-width: 500px; width: 95%;">
+        <div class="auth-container" style="max-width: 600px; width: 95%;">
             <button class="auth-close" onclick="closeProfileModal()">&times;</button>
-            <div class="section-title" style="font-size: 1.5rem; margin-bottom: 20px;">
+            <div class="section-title" style="font-size: 1.5rem; margin-bottom: 25px;">
                 <i class="fas fa-user-circle" style="color: var(--primary);"></i> Mənim Profilim
             </div>
             <div id="user-profile-details" style="padding: 10px;">
@@ -1115,32 +1100,169 @@ window.openProfileModal = async () => {
     const container = document.getElementById('user-profile-details');
     if (!container) return;
 
+    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
     document.getElementById('profile-modal').classList.add('active');
 
-    // Backenddə /api/users/{username} endpointinin SecurityConfig-i "Ant pattern" əvəzinə
-    // literal "{username}" stringini axtardığı üçün normal istifadəçilərə 403 xətası verir.
-    // Buna görə məlumatları birbaşa state (localStorage) üzərindən oxuyuruq.
-    const userDetails = state.user;
+    try {
+        // Fetch full user details from backend using username
+        let userDetails = {...state.user};
+
+        if (state.user && state.user.username) {
+            try {
+                const fullUserData = await apiRequest(`${API_BASE_URL}/api/users/${state.user.username}`);
+                if (fullUserData) {
+                    userDetails = {...userDetails, ...fullUserData};
+                }
+            } catch (e) {
+                console.warn('Could not load full user details from backend, using cached data', e);
+                // Fallback to state.user if backend call fails
+            }
+        }
+
+        // Map phoneNumber to phone for display
+        const phone = userDetails.phoneNumber || userDetails.phone;
+
+        container.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Username -->
+                <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border-left: 3px solid var(--primary);">
+                    <span style="color: var(--text-muted);"><i class="fas fa-user"></i> İstifadəçi adı:</span>
+                    <strong style="color: var(--text-main);">@${escapeHtml(userDetails.username)}</strong>
+                </div>
+
+                <!-- Email -->
+                <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border-left: 3px solid var(--success);">
+                    <span style="color: var(--text-muted);"><i class="fas fa-envelope"></i> E-mail:</span>
+                    <strong style="color: var(--text-main);">${escapeHtml(userDetails.email || 'Qeyd olunmamış')}</strong>
+                </div>
+
+                <!-- Full Name -->
+                <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border-left: 3px solid var(--success);">
+                    <span style="color: var(--text-muted);"><i class="fas fa-id-card"></i> Tam ad:</span>
+                    <strong style="color: var(--text-main);">${escapeHtml(userDetails.fullName || 'Qeyd olunmamış')}</strong>
+                </div>
+
+                <!-- Phone -->
+                <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border-left: 3px solid var(--info);">
+                    <span style="color: var(--text-muted);"><i class="fas fa-phone"></i> Telefon:</span>
+                    <strong style="color: var(--text-main);">${escapeHtml(phone || 'Qeyd olunmamış')}</strong>
+                </div>
+
+                <!-- Address -->
+                <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border-left: 3px solid var(--info);">
+                    <span style="color: var(--text-muted);"><i class="fas fa-map-marker-alt"></i> Ünvan:</span>
+                    <strong style="color: var(--text-main);">${escapeHtml(userDetails.address || 'Qeyd olunmamış')}</strong>
+                </div>
+
+                <!-- Separator -->
+                <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
+
+                <!-- Actions -->
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="edit-profile-btn" style="flex: 1;">
+                        <i class="fas fa-edit"></i> Redaktə Et
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeProfileModal()" style="flex: 1;">
+                        <i class="fas fa-times"></i> Bağla
+                    </button>
+                </div>
+            </div>
+        `;
+
+        const editBtn = container.querySelector('#edit-profile-btn');
+        if (editBtn) {
+            editBtn.addEventListener('click', () => {
+                renderProfileEditForm(userDetails, phone);
+            });
+        }
+    } catch (error) {
+        console.error('Profile loading error:', error);
+        container.innerHTML = `<div class="empty" style="text-align: center; padding: 30px; color: var(--danger);">❌ Profil məlumatları yüklənə bilmədi</div>`;
+    }
+};
+
+function renderProfileEditForm(userDetails, phone) {
+    const container = document.getElementById('user-profile-details');
+    if (!container) return;
 
     container.innerHTML = `
-        <div style="display: flex; flex-direction: column; gap: 15px;">
-            <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
-                <span style="color: var(--text-muted);"><i class="fas fa-fingerprint"></i> ID:</span>
-                <strong style="color: var(--text-main);">${userDetails.id}</strong>
+        <form id="edit-profile-form" style="display: flex; flex-direction: column; gap: 15px;">
+            <!-- Username (Disabled) -->
+            <div class="input-group">
+                <label style="font-weight: 600; color: var(--text-muted);"><i class="fas fa-user"></i> İstifadəçi adı</label>
+                <input type="text" value="@${escapeHtml(userDetails.username)}" disabled style="opacity: 0.6; cursor: not-allowed; width: 100%;">
             </div>
-            <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
-                <span style="color: var(--text-muted);"><i class="fas fa-user"></i> İstifadəçi adı:</span>
-                <strong style="color: var(--text-main);">@${escapeHtml(userDetails.username)}</strong>
+
+            <!-- Full Name -->
+            <div class="input-group">
+                <label style="font-weight: 600; color: var(--text-muted);"><i class="fas fa-id-card"></i> Tam ad</label>
+                <input type="text" id="profile-fullName" value="${escapeHtml(userDetails.fullName || '')}" placeholder="Tam adınızı daxil edin" style="width: 100%;">
             </div>
-            <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
-                <span style="color: var(--text-muted);"><i class="fas fa-shield-alt"></i> Səlahiyyət (Rol):</span>
-                <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--primary); font-size: 1rem;">
-                    ${getFriendlyRole(userDetails.role)}
-                </span>
+
+            <!-- Email -->
+            <div class="input-group">
+                <label style="font-weight: 600; color: var(--text-muted);"><i class="fas fa-envelope"></i> E-mail</label>
+                <input type="email" id="profile-email" value="${escapeHtml(userDetails.email || '')}" placeholder="E-mail ünvanınızı daxil edin" style="width: 100%;">
             </div>
-        </div>
+
+            <!-- Phone -->
+            <div class="input-group">
+                <label style="font-weight: 600; color: var(--text-muted);"><i class="fas fa-phone"></i> Telefon</label>
+                <input type="text" id="profile-phone" value="${escapeHtml(phone || '')}" placeholder="Telefon nömrənizi daxil edin" style="width: 100%;">
+            </div>
+
+            <!-- Address -->
+            <div class="input-group">
+                <label style="font-weight: 600; color: var(--text-muted);"><i class="fas fa-map-marker-alt"></i> Ünvan</label>
+                <input type="text" id="profile-address" value="${escapeHtml(userDetails.address || '')}" placeholder="Ünvanınızı daxil edin" style="width: 100%;">
+            </div>
+
+            <!-- Separator -->
+            <hr style="border: none; border-top: 1px solid var(--border); margin: 15px 0;">
+
+            <!-- Actions -->
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <i class="fas fa-save"></i> Yadda Saxla
+                </button>
+                <button type="button" class="btn btn-secondary" id="cancel-profile-edit" style="flex: 1;">
+                    <i class="fas fa-times"></i> Ləğv Et
+                </button>
+            </div>
+        </form>
     `;
-};
+
+    const form = container.querySelector('#edit-profile-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fullName = document.getElementById('profile-fullName').value.trim();
+        const email = document.getElementById('profile-email').value.trim();
+        const phoneNumber = document.getElementById('profile-phone').value.trim();
+        const address = document.getElementById('profile-address').value.trim();
+
+        try {
+            const updated = await apiRequest(`${API_BASE_URL}/api/users/profile`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fullName, email, phoneNumber, address })
+            });
+
+            if (updated) {
+                showToast('✅ Profil məlumatları yeniləndi', 'success');
+                // Reload profile modal to view mode with updated data
+                window.openProfileModal();
+            }
+        } catch (err) {
+            console.error('Profile update failed:', err);
+            showToast('❌ Yeniləmə xətası: ' + (err.message || 'Məlumatlar yadda saxlanıla bilmədi'), 'danger');
+        }
+    });
+
+    const cancelBtn = container.querySelector('#cancel-profile-edit');
+    cancelBtn.addEventListener('click', () => {
+        window.openProfileModal();
+    });
+}
 
 window.closeProfileModal = () => {
     const modal = document.getElementById('profile-modal');
@@ -1297,29 +1419,74 @@ window.loadAdminOrders = async () => {
             <th>ID</th><th>İstifadəçi</th><th>Məbləğ</th><th>Status</th><th>Tarix</th><th>Əməliyyat</th></tr></thead><tbody>`;
         orders.forEach(o => {
             const date = o.createdAt ? new Date(o.createdAt).toLocaleString('az-AZ') : '-';
+            
+            let actionButtons = '';
+            if (o.status === 'PENDING') {
+                actionButtons = `
+                    <div class="order-action-buttons">
+                        <button class="btn-order-action btn-order-complete" data-id="${o.id}" data-status="COMPLETED" title="Tamamla">
+                            <i class="fas fa-check"></i> Tamamla
+                        </button>
+                        <button class="btn-order-action btn-order-cancel" data-id="${o.id}" data-status="CANCELLED" title="Ləğv et">
+                            <i class="fas fa-times"></i> Ləğv et
+                        </button>
+                    </div>
+                `;
+            } else if (o.status === 'COMPLETED') {
+                actionButtons = `
+                    <div class="order-action-buttons">
+                        <button class="btn-order-action btn-order-revert" data-id="${o.id}" data-status="PENDING" title="Gözlət">
+                            <i class="fas fa-undo"></i> Gözlət
+                        </button>
+                        <button class="btn-order-action btn-order-cancel" data-id="${o.id}" data-status="CANCELLED" title="Ləğv et">
+                            <i class="fas fa-times"></i> Ləğv et
+                        </button>
+                    </div>
+                `;
+            } else if (o.status === 'CANCELLED') {
+                actionButtons = `
+                    <div class="order-action-buttons">
+                        <button class="btn-order-action btn-order-revert" data-id="${o.id}" data-status="PENDING" title="Gözlət">
+                            <i class="fas fa-undo"></i> Gözlət
+                        </button>
+                        <button class="btn-order-action btn-order-complete" data-id="${o.id}" data-status="COMPLETED" title="Tamamla">
+                            <i class="fas fa-check"></i> Tamamla
+                        </button>
+                    </div>
+                `;
+            } else {
+                actionButtons = `
+                    <div class="order-action-buttons">
+                        <button class="btn-order-action btn-order-complete" data-id="${o.id}" data-status="COMPLETED" title="Tamamla">
+                            <i class="fas fa-check"></i> Tamamla
+                        </button>
+                        <button class="btn-order-action btn-order-cancel" data-id="${o.id}" data-status="CANCELLED" title="Ləğv et">
+                            <i class="fas fa-times"></i> Ləğv et
+                        </button>
+                    </div>
+                `;
+            }
+
             html += `<tr>
                 <td>#${o.id}</td>
                 <td>${escapeHtml(o.username || ('User#' + o.userId))}</td>
                 <td><strong>${(o.totalPrice || 0).toFixed(2)} ₼</strong></td>
                 <td><span class="badge">${escapeHtml(o.status || 'PENDING')}</span></td>
                 <td>${date}</td>
-                <td>
-                    <select class="order-status-select" data-id="${o.id}">
-                        <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>Gözləyir</option>
-                        <option value="COMPLETED" ${o.status === 'COMPLETED' ? 'selected' : ''}>Tamamlandı</option>
-                        <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>Ləğv edildi</option>
-                    </select>
-                </td>
+                <td>${actionButtons}</td>
             </tr>`;
         });
         html += '</tbody></table>';
         container.innerHTML = html;
 
-        container.querySelectorAll('.order-status-select').forEach(sel => {
-            sel.addEventListener('change', async () => {
+        container.querySelectorAll('.btn-order-action').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const status = btn.dataset.status;
+                const orderId = btn.dataset.id;
                 try {
-                    await apiRequest(`${API_BASE_URL}/api/orders/${sel.dataset.id}/status?status=${sel.value}`, {method: 'PUT'});
+                    await apiRequest(`${API_BASE_URL}/api/orders/${orderId}/status?status=${status}`, {method: 'PUT'});
                     showToast('✅ Status yeniləndi', 'success');
+                    window.loadAdminOrders();
                 } catch (e) {
                     showToast('❌ Status yenilənə bilmədi', 'danger');
                 }

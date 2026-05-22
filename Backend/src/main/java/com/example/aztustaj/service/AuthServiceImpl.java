@@ -32,18 +32,12 @@ public class AuthServiceImpl implements AuthService {
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.ROLE_USER)
+                .role(Role.User)
                 .build();
 
         User savedUser = userRepository.save(user);
 
-        UserDetails userDetails = org.springframework.security.core.userdetails.User
-                .withUsername(savedUser.getUsername())
-                .password(savedUser.getPassword())
-                .authorities(savedUser.getRole().name())
-                .build();
-
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken(savedUser);
 
         return new AuthResponse(token, savedUser.getUsername(), savedUser.getRole().name(), savedUser.getId());
     }
@@ -60,13 +54,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("İstifadəçi tapılmadı"));
 
-        UserDetails userDetails = org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())
-                .authorities(user.getRole().name())
-                .build();
-
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken(user);
 
         return new AuthResponse(token, user.getUsername(), user.getRole().name(), user.getId());
     }

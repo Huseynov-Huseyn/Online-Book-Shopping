@@ -58,9 +58,13 @@
         if (cat) cat.addEventListener('change', () => window.applyFiltersAndSort && window.applyFiltersAndSort());
         if (sort) sort.addEventListener('change', () => window.applyFiltersAndSort && window.applyFiltersAndSort());
 
-        // Genre badges
-        document.querySelectorAll('.genre-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+        // Genre badges (using event delegation for dynamically added category buttons)
+        const genreBadges = document.getElementById('genre-badges');
+        if (genreBadges) {
+            genreBadges.addEventListener('click', (e) => {
+                const btn = e.target.closest('.genre-btn');
+                if (!btn) return;
+
                 document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const genre = btn.dataset.genre;
@@ -70,7 +74,7 @@
                     window.applyFiltersAndSort && window.applyFiltersAndSort();
                 }
             });
-        });
+        }
 
         // Details modal close
         const closeDetails = document.getElementById('close-details-btn');
