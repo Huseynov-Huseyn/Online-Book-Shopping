@@ -1,6 +1,9 @@
 package com.example.aztustaj.config;
 
-import com.example.aztustaj.entity.*;
+import com.example.aztustaj.entity.Book;
+import com.example.aztustaj.entity.Review;
+import com.example.aztustaj.entity.Role;
+import com.example.aztustaj.entity.User;
 import com.example.aztustaj.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;

@@ -1,4 +1,3 @@
-
 package com.example.aztustaj.entity;
 
 import jakarta.persistence.*;

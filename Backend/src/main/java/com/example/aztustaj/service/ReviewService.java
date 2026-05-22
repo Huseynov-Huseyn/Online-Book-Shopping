@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface ReviewService {
     ReviewResponse addReview(User user, ReviewRequest reviewRequest);
+
     List<ReviewResponse> getReviewsByBookId(String bookId);
+
     Double getAverageRating(String bookId);
 }
