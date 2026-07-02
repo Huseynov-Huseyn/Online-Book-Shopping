@@ -29,4 +29,8 @@ public interface BookRepository extends JpaRepository<Book, String> {
             "LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
             "(:category IS NULL OR LOWER(b.category) = LOWER(:category))")
     List<Book> searchBooks(@Param("search") String search, @Param("category") String category);
+
+    // Bütün təkrar olunmayan kateqoriyaları gətir
+    @Query("SELECT DISTINCT b.category FROM Book b WHERE b.category IS NOT NULL AND b.category != ''")
+    List<String> findDistinctCategories();
 }

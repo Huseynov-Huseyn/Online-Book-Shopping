@@ -1,0 +1,77 @@
+2026-07-02 08:32:28.525471+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "\000d\000a    create table books (\000d\000a        id varchar(50) not null,\000d\000a        author varchar(255) not null,\000d\000a        average_rating float(53),\000d\000a        category varchar(100) not null,\000d\000a        image_url varchar(500),\000d\000a        pages integer not null,\000d\000a        price numeric(10,2) not null,\000d\000a        stock_quantity integer not null,\000d\000a        title varchar(255) not null,\000d\000a        [*]year integer not null,\000d\000a        primary key (id)\000d\000a    )"; expected "identifier"; SQL statement:
+
+    create table books (
+        id varchar(50) not null,
+        author varchar(255) not null,
+        average_rating float(53),
+        category varchar(100) not null,
+        image_url varchar(500),
+        pages integer not null,
+        price numeric(10,2) not null,
+        stock_quantity integer not null,
+        title varchar(255) not null,
+        year integer not null,
+        primary key (id)
+    ) [42001-224]
+2026-07-02 08:32:28.552672+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "BOOKS" not found; SQL statement:
+
+    alter table if exists cart_items 
+       add constraint FKhiu1jw80o45wfiw5tgok1xpkl 
+       foreign key (book_id) 
+       references [42102-224]
+2026-07-02 08:32:28.561540+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "BOOKS" not found; SQL statement:
+
+    alter table if exists order_items 
+       add constraint FKi4ptndslo2pyfp9r1x0eulh9g 
+       foreign key (book_id) 
+       references [42102-224]
+2026-07-02 08:32:28.568541+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "BOOKS" not found; SQL statement:
+
+    alter table if exists reviews 
+       add constraint FK6a9k6xvev80se5rreqvuqr7f9 
+       foreign key (book_id) 
+       references [42102-224]
+2026-07-02 08:32:55.580799+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "\000d\000a    create table books (\000d\000a        id varchar(50) not null,\000d\000a        author varchar(255) not null,\000d\000a        average_rating float(53),\000d\000a        category varchar(100) not null,\000d\000a        image_url varchar(500),\000d\000a        pages integer not null,\000d\000a        price numeric(10,2) not null,\000d\000a        stock_quantity integer not null,\000d\000a        title varchar(255) not null,\000d\000a        [*]year integer not null,\000d\000a        primary key (id)\000d\000a    )"; expected "identifier"; SQL statement:
+
+    create table books (
+        id varchar(50) not null,
+        author varchar(255) not null,
+        average_rating float(53),
+        category varchar(100) not null,
+        image_url varchar(500),
+        pages integer not null,
+        price numeric(10,2) not null,
+        stock_quantity integer not null,
+        title varchar(255) not null,
+        year integer not null,
+        primary key (id)
+    ) [42001-224]
+2026-07-02 08:32:55.600738+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "BOOKS" not found; SQL statement:
+
+    alter table if exists cart_items 
+       add constraint FKhiu1jw80o45wfiw5tgok1xpkl 
+       foreign key (book_id) 
+       references [42102-224]
+2026-07-02 08:32:55.605557+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "BOOKS" not found; SQL statement:
+
+    alter table if exists order_items 
+       add constraint FKi4ptndslo2pyfp9r1x0eulh9g 
+       foreign key (book_id) 
+       references [42102-224]
+2026-07-02 08:32:55.609622+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "BOOKS" not found; SQL statement:
+
+    alter table if exists reviews 
+       add constraint FK6a9k6xvev80se5rreqvuqr7f9 
+       foreign key (book_id) 
+       references [42102-224]
+2026-07-02 08:32:57.621554+04:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "select b1_0.id,b1_0.author,b1_0.average_rating,b1_0.category,b1_0.image_url,b1_0.pages,b1_0.price,b1_0.stock_quantity,b1_0.title,b1_0.[*]year from books b1_0"; expected "identifier"; SQL statement:
+select b1_0.id,b1_0.author,b1_0.average_rating,b1_0.category,b1_0.image_url,b1_0.pages,b1_0.price,b1_0.stock_quantity,b1_0.title,b1_0.year from books b1_0 [42001-224]

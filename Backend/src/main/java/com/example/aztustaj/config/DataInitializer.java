@@ -164,10 +164,36 @@ public class DataInitializer implements CommandLineRunner {
                 .imageUrl("/images/The Valley of Fear.jpg")
                 .build());
 
+        // Kitab 6: The Valley of Fear (Alternative Edition)
+        books.add(Book.builder()
+                .id("book-006")
+                .title("Sherlock Holmes: The Valley of Fear")
+                .author("Arthur Conan Doyle")
+                .category("Detektiv")
+                .pages(200)
+                .year(1915)
+                .price(new BigDecimal("14.00"))
+                .stockQuantity(7)
+                .imageUrl("/images/book-10469689657200.jpg")
+                .build());
+
+        // Kitab 7: Swagger API Guide (System Screenshot)
+        books.add(Book.builder()
+                .id("book-007")
+                .title("API Documentation Guide")
+                .author("System Architect")
+                .category("Texnologiya")
+                .pages(50)
+                .year(2023)
+                .price(new BigDecimal("5.00"))
+                .stockQuantity(100)
+                .imageUrl("/images/book-194521273300.jpg")
+                .build());
+
         // Bütün kitabları bazaya əlavə et
         bookRepository.saveAll(books);
 
-        System.out.println("✅ 5 yeni kitab uğurla bazaya əlavə olundu!");
+        System.out.println("✅ 7 yeni kitab uğurla bazaya əlavə olundu!");
     }
 
     private void initializeReviews() {
